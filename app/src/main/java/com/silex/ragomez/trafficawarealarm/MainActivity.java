@@ -1,6 +1,7 @@
 package com.silex.ragomez.trafficawarealarm;
 
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -164,6 +165,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Toast.makeText(this,
                 "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
                 Toast.LENGTH_SHORT).show();
+    }
+
+
+    public void openDatePickerDialog(View view) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 }
 
