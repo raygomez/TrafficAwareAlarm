@@ -8,5 +8,7 @@
     <string name="destination">Destination</string>
     <string name="label_destination">Enter your destination</string>
     <string name="label_origin">Enter your origin</string>
+    <string name="date_format">YYYY/MM/DD</string>
+    <string name="label_set_alarm">Set the alarm</string>
 
 </resources>

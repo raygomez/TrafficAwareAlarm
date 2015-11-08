@@ -171,4 +171,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
+
+    public void openTimePickerDialog(View view) {
+    }
 }
