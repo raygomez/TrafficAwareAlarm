@@ -56,7 +56,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
         // the entire world.
-        mAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_GREATER_SYDNEY,
+        mAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_METRO_MANILA,
                 null);
         mAutocompleteView.setAdapter(mAdapter);
 
@@ -86,8 +86,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private TextView mPlaceDetailsAttribution;
 
-    private static final LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
-            new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
+    private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
+            new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that

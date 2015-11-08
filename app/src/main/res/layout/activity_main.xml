@@ -12,13 +12,13 @@
         android:id="@+id/autocomplete_places"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="From:">
+        android:hint="@string/origin">
         <requestFocus/>
     </AutoCompleteTextView>
     <AutoCompleteTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="To:">
+        android:hint="@string/destination">
     </AutoCompleteTextView>
 
     <TextView
