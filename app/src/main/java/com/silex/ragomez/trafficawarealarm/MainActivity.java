@@ -1,11 +1,7 @@
 package com.silex.ragomez.trafficawarealarm;
 
-import android.content.res.Resources;
-import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spanned;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -50,10 +46,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         // Register a listener that receives callbacks when a suggestion has been selected
         mAutocompleteView.setOnItemClickListener(mAutocompleteClickListener);
 
-        // Retrieve the TextViews that will display details and attributions of the selected place.
-        mPlaceDetailsText = (TextView) findViewById(R.id.place_details);
-        mPlaceDetailsAttribution = (TextView) findViewById(R.id.place_attribution);
-
         // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
         // the entire world.
         mAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_METRO_MANILA,
@@ -82,12 +74,11 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private AutoCompleteTextView mAutocompleteView;
 
-    private TextView mPlaceDetailsText;
-
-    private TextView mPlaceDetailsAttribution;
-
     private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
             new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
+
+    private LatLng origin = null;
+    private LatLng destination = null;
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -144,34 +135,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             // Get the Place object from the buffer.
             final Place place = places.get(0);
 
-            // Format details of the place for display and show it in a TextView.
-            mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
-                    place.getId(), place.getAddress(), place.getPhoneNumber(),
-                    place.getWebsiteUri()));
-
-            // Display the third party attributions if set.
-            final CharSequence thirdPartyAttribution = places.getAttributions();
-            if (thirdPartyAttribution == null) {
-                mPlaceDetailsAttribution.setVisibility(View.GONE);
-            } else {
-                mPlaceDetailsAttribution.setVisibility(View.VISIBLE);
-                mPlaceDetailsAttribution.setText(Html.fromHtml(thirdPartyAttribution.toString()));
-            }
+            origin = place.getLatLng();
 
             Log.i(TAG, "Place details received: " + place.getName());
+            Log.i(TAG, "Location received: " + place.getLatLng().toString());
 
             places.release();
         }
     };
-
-    private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
-                                              CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
-        Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-        return Html.fromHtml(res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-
-    }
 
     /**
      * Called when the Activity could not connect to Google Play services and the auto manager
@@ -191,7 +162,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
                 Toast.LENGTH_SHORT).show();
     }
-
 }
 
 
