@@ -1,12 +1,10 @@
 package com.silex.ragomez.trafficawarealarm;
 
 import android.os.Bundle;
-import android.text.Html;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.common.activities.SampleActivityBase;
@@ -40,24 +38,27 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 .build();
 
         // Retrieve the AutoCompleteTextView that will display Place suggestions.
-        mAutocompleteView = (AutoCompleteTextView)
-                findViewById(R.id.autocomplete_places);
+        originView = (AutoCompleteTextView) findViewById(R.id.origin);
+        destinationView = (AutoCompleteTextView) findViewById(R.id.destination);
 
         // Register a listener that receives callbacks when a suggestion has been selected
-        mAutocompleteView.setOnItemClickListener(mAutocompleteClickListener);
+        originView.setOnItemClickListener(mAutocompleteClickListener);
+        destinationView.setOnItemClickListener(mAutocompleteClickListener);
 
         // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
         // the entire world.
         mAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_METRO_MANILA,
                 null);
-        mAutocompleteView.setAdapter(mAdapter);
+        originView.setAdapter(mAdapter);
+        destinationView.setAdapter(mAdapter);
 
         // Set up the 'clear text' button that clears the text in the autocomplete view
         Button clearButton = (Button) findViewById(R.id.button_clear);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAutocompleteView.setText("");
+                originView.setText("");
+                destinationView.setText("");
             }
         });
 
@@ -72,7 +73,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private PlaceAutocompleteAdapter mAdapter;
 
-    private AutoCompleteTextView mAutocompleteView;
+    private AutoCompleteTextView originView;
+    private AutoCompleteTextView destinationView;
 
     private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
             new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
@@ -136,6 +138,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             final Place place = places.get(0);
 
             origin = place.getLatLng();
+            destination = place.getLatLng();
 
             Log.i(TAG, "Place details received: " + place.getName());
             Log.i(TAG, "Location received: " + place.getLatLng().toString());
