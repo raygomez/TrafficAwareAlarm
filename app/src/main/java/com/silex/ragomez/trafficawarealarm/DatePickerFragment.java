@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
+import android.widget.TextView;
 
 import com.example.android.common.logger.Log;
 
@@ -34,5 +35,7 @@ public class DatePickerFragment extends DialogFragment
         Log.i(TAG, "Month: " + month);
         Log.i(TAG, "Day: " + day);
 
+        TextView textView = (TextView) getActivity().findViewById(R.id.date);
+        textView.setText(year + "/" + month + "/" + day) ;
     }
 }

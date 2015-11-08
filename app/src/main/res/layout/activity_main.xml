@@ -47,17 +47,12 @@
             android:text="Set the alarm"/>
 
 
-        <EditText
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:ems="10"
-            android:id="@+id/date" />
-
-        <DatePicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/datePicker" />
+            android:id="@+id/date"
+            android:onClick="openDatePickerDialog"
+            android:hint="YYYY/MM/DD"/>
 
         <TimePicker
             android:layout_width="wrap_content"

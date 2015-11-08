@@ -167,11 +167,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 Toast.LENGTH_SHORT).show();
     }
 
-
     public void openDatePickerDialog(View view) {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 }
-
-
