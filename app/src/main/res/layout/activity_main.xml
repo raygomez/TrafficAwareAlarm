@@ -66,17 +66,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:onClick="openTimePickerDialog"
+                android:focusable="false"
                 android:layout_weight="0.5"
                 android:hint="HH:MM PM/AM"/>
 
         </LinearLayout>
-
-
-        <TimePicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/timePicker" />
-
         <Button
             android:id="@+id/button_clear"
             android:layout_width="wrap_content"
