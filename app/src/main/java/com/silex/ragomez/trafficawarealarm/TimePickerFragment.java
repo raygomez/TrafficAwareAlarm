@@ -40,7 +40,7 @@ public class TimePickerFragment extends DialogFragment
             am_pm = "AM";
         }
 
-        textView.setText(hour + " : " + minute + " " + am_pm) ;
+        textView.setText(String.format("%02d", hour) + " : " + String.format("%02d", minute) + " " + am_pm) ;
 
     }
 }
