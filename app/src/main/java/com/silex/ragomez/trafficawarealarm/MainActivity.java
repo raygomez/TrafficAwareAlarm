@@ -174,6 +174,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void openTimePickerDialog(View view) {
         DialogFragment newFragment = new TimePickerFragment();
+        Bundle args = new Bundle();
+        args.putInt("source", R.id.default_time);
+        newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "timePicker");
 
     }

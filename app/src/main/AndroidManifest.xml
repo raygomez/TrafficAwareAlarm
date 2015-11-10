@@ -6,6 +6,8 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="19"/>
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,7 +17,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCYNj8Hp4TbaXd8rCKtSZ9XS_tPNFGiQlg"/>
+            android:value="AIzaSyB1eaTN5CxlIVA-BKXkZt3VWCJCfr1N44I"/>
 
         <activity android:name=".MainActivity" >
             <intent-filter>

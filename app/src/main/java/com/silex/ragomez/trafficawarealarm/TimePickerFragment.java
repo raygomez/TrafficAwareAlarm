@@ -14,6 +14,8 @@ import java.util.Calendar;
 public class TimePickerFragment extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
 
+    int source;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -21,12 +23,14 @@ public class TimePickerFragment extends DialogFragment
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
+        source = getArguments().getInt("source");
+
         return new TimePickerDialog(getActivity(), this, hour, minute,
                 DateFormat.is24HourFormat(getActivity()));
     }
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        EditText textView = (EditText) getActivity().findViewById(R.id.time);
+        EditText textView = (EditText) getActivity().findViewById(source);
 
 
         String am_pm;

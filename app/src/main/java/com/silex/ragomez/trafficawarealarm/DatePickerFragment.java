@@ -35,7 +35,7 @@ public class DatePickerFragment extends DialogFragment
         Log.i(TAG, "Month: " + month);
         Log.i(TAG, "Day: " + day);
 
-        EditText textView = (EditText) getActivity().findViewById(R.id.date);
+        EditText textView = (EditText) getActivity().findViewById(R.id.default_date);
         textView.setText(year + "/" + month + "/" + day) ;
     }
 }
