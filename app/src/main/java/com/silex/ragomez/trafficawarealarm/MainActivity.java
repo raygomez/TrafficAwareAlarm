@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.android.common.activities.SampleActivityBase;
@@ -60,6 +61,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             public void onClick(View v) {
                 originView.setText("");
                 destinationView.setText("");
+                ((EditText) findViewById(R.id.default_date)).setText("");
+                ((EditText) findViewById(R.id.default_time)).setText("");
+                ((EditText) findViewById(R.id.target_date)).setText("");
+                ((EditText) findViewById(R.id.target_time)).setText("");
             }
         });
 
@@ -169,13 +174,16 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void openDatePickerDialog(View view) {
         DialogFragment newFragment = new DatePickerFragment();
+        Bundle args = new Bundle();
+        args.putInt("source", view.getId());
+        newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
     public void openTimePickerDialog(View view) {
         DialogFragment newFragment = new TimePickerFragment();
         Bundle args = new Bundle();
-        args.putInt("source", R.id.default_time);
+        args.putInt("source", view.getId());
         newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "timePicker");
 

@@ -78,6 +78,31 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/expected_arrival"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/target_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:onClick="openDatePickerDialog"
+                android:focusable="false"
+                android:layout_weight="0.5"
+                android:hint="@string/date_format"/>
+
+            <EditText
+                android:id="@+id/target_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:onClick="openTimePickerDialog"
+                android:focusable="false"
+                android:layout_weight="0.5"
+                android:hint="HH:MM PM/AM"/>
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/button_clear"
             android:layout_width="wrap_content"

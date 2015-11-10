@@ -16,6 +16,7 @@ public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
     public static final String TAG = "DatePickerFragment";
+    int source;
 
     @NonNull
     @Override
@@ -26,6 +27,8 @@ public class DatePickerFragment extends DialogFragment
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
 
+        source = getArguments().getInt("source");
+
         // Create a new instance of DatePickerDialog and return it
         return new DatePickerDialog(getActivity(), this, year, month, day);
     }
@@ -35,7 +38,7 @@ public class DatePickerFragment extends DialogFragment
         Log.i(TAG, "Month: " + month);
         Log.i(TAG, "Day: " + day);
 
-        EditText textView = (EditText) getActivity().findViewById(R.id.default_date);
+        EditText textView = (EditText) getActivity().findViewById(source);
         textView.setText(year + "/" + month + "/" + day) ;
     }
 }
