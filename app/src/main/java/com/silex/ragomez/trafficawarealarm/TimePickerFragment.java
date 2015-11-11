@@ -34,9 +34,6 @@ public class TimePickerFragment extends DialogFragment
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         EditText textView = (EditText) getActivity().findViewById(source);
 
-        Log.i("Date", ":" + hourOfDay + ":" + minute);
-
-
         String am_pm;
         int hour;
 

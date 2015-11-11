@@ -35,10 +35,10 @@ public class DatePickerFragment extends DialogFragment
 
     public void onDateSet(DatePicker view, int year, int month, int day) {
         Log.i(TAG, "Year: " + year);
-        Log.i(TAG, "Month: " + month);
+        Log.i(TAG, "Month: " + (month + 1));
         Log.i(TAG, "Day: " + day);
 
         EditText textView = (EditText) getActivity().findViewById(source);
-        textView.setText(year + "/" + month + "/" + day) ;
+        textView.setText(year + "/" + (month + 1) + "/" + day) ;
     }
 }

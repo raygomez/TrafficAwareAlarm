@@ -239,15 +239,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
         try {
-            Log.i(TAG, default_date.getText().toString() + ' ' +
-                    default_time.getText().toString());
 
             Date date = format.parse(default_date.getText().toString() + ' ' +
                     default_time.getText().toString());
             Log.i(TAG, "Date: " + date.toString());
 
             if(alarm != null){
-                alarm.setOnetimeTimer(context);
+                Log.i("Timer", "timer started:" + new Date().toString());
+                alarm.setOnetimeTimer(context, date.getTime());
             } else {
                 Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
             }

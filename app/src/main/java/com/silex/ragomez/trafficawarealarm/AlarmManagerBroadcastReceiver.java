@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.widget.Toast;
 
+import com.example.android.common.logger.Log;
+
+import java.util.Date;
+
 
 //http://www.javacodegeeks.com/2012/09/android-alarmmanager-tutorial.html
 public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
@@ -22,14 +26,16 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         wl.acquire();
 
         Toast.makeText(context, "Timer expired", Toast.LENGTH_LONG).show();
+        Log.i("Timer", "timer expired:" + new Date().toString());
+
         wl.release();
     }
 
-    public void setOnetimeTimer(Context context) {
+    public void setOnetimeTimer(Context context, long timeOfExpiration) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
-        intent.putExtra(ONE_TIME, Boolean.TRUE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
-        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5 * 1000, pi);
+
+        am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);
     }
 }
