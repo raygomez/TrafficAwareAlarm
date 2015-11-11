@@ -34,6 +34,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -66,6 +70,11 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         originView.setAdapter(mAdapter);
         destinationView.setAdapter(mAdapter);
 
+        default_date = (EditText) findViewById(R.id.default_date);
+        default_time = (EditText) findViewById(R.id.default_time);
+        target_date = (EditText) findViewById(R.id.target_date);
+        target_time = (EditText) findViewById(R.id.target_time);
+
         // Set up the 'clear text' button that clears the text in the autocomplete view
         Button clearButton = (Button) findViewById(R.id.button_clear);
         clearButton.setOnClickListener(new View.OnClickListener() {
@@ -73,10 +82,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             public void onClick(View v) {
                 originView.setText("");
                 destinationView.setText("");
-                ((EditText) findViewById(R.id.default_date)).setText("");
-                ((EditText) findViewById(R.id.default_time)).setText("");
-                ((EditText) findViewById(R.id.target_date)).setText("");
-                ((EditText) findViewById(R.id.target_time)).setText("");
+                default_date.setText("");
+                default_time.setText("");
+                target_date.setText("");
+                target_time.setText("");
             }
         });
 
@@ -96,6 +105,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
             }
         });
+
     }
 
     /**
@@ -116,6 +126,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private LatLng destination = null;
 
     private AlarmManagerBroadcastReceiver alarm;
+
+    EditText default_date;
+    EditText default_time;
+    EditText target_date;
+    EditText target_time;
+
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -221,11 +237,26 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void oneTimeTimer(View view) {
         Context context = getApplicationContext();
 
-        if(alarm != null){
-            alarm.setOnetimeTimer(context);
-        } else {
-            Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
+        try {
+            Log.i(TAG, default_date.getText().toString() + ' ' +
+                    default_time.getText().toString());
+
+            Date date = format.parse(default_date.getText().toString() + ' ' +
+                    default_time.getText().toString());
+            Log.i(TAG, "Date: " + date.toString());
+
+            if(alarm != null){
+                alarm.setOnetimeTimer(context);
+            } else {
+                Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+            }
+
+
+        } catch (ParseException e) {
+            Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
@@ -243,7 +274,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         private String GET(String urlStr) {
             android.util.Log.i("urlConnection", " gonna connect to " + urlStr);
-            InputStream inputStream = null;
+            InputStream inputStream;
             String result = "";
             URL url;
             HttpURLConnection urlConnection = null;
@@ -281,7 +312,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         private String convertInputStreamToString(InputStream inputStream) throws IOException {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String line = "";
+            String line;
             String result = "";
             while ((line = bufferedReader.readLine()) != null)
                 result += line;

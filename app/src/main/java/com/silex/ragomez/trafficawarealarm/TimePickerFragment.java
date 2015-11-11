@@ -9,6 +9,8 @@ import android.text.format.DateFormat;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
+import com.example.android.common.logger.Log;
+
 import java.util.Calendar;
 
 public class TimePickerFragment extends DialogFragment
@@ -32,15 +34,17 @@ public class TimePickerFragment extends DialogFragment
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         EditText textView = (EditText) getActivity().findViewById(source);
 
+        Log.i("Date", ":" + hourOfDay + ":" + minute);
+
 
         String am_pm;
         int hour;
 
-        if(hourOfDay > 12) {
-            hour = hourOfDay - 12;
+        if(hourOfDay >= 12) {
+            hour = hourOfDay != 12 ? hourOfDay - 12 : 12;
             am_pm = "PM";
         } else {
-            hour = hourOfDay;
+            hour = hourOfDay != 0 ? hourOfDay : 12;
             am_pm = "AM";
         }
 
