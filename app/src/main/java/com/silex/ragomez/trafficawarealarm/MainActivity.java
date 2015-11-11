@@ -1,7 +1,9 @@
 package com.silex.ragomez.trafficawarealarm;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -22,6 +24,15 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -65,6 +76,23 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 ((EditText) findViewById(R.id.default_time)).setText("");
                 ((EditText) findViewById(R.id.target_date)).setText("");
                 ((EditText) findViewById(R.id.target_time)).setText("");
+            }
+        });
+
+        // Set up the 'clear text' button that clears the text in the autocomplete view
+        Button createAlarm = (Button) findViewById(R.id.button_create);
+        createAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // check details
+                originView.getText();
+                destinationView.getText();
+                EditText time = (EditText) findViewById(R.id.time);
+                EditText date = (EditText) findViewById(R.id.target_date);
+
+                // send post with input details
+                new HttpAsyncTask().execute("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=14.661258%2C121.061674&from=14.558194%2C121.085495");
+
             }
         });
 
@@ -187,5 +215,69 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "timePicker");
 
+    }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+
+            return GET(urls[0]);
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
+        }
+
+        private String GET(String urlStr) {
+            android.util.Log.i("urlConnection", " gonna connect to " + urlStr);
+            InputStream inputStream = null;
+            String result = "";
+            URL url;
+            HttpURLConnection urlConnection = null;
+            try {
+                url = new URL(urlStr);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                inputStream = urlConnection.getInputStream();
+                if (!url.getHost().equals(urlConnection.getURL().getHost())) {
+                    android.util.Log.i("urlConnection", "we were redirected! Kick the user out to the browser to sign on?");
+                }
+                int responseCode = urlConnection.getResponseCode();
+                System.out.println("urlConnection.responseCode: " + responseCode);
+                System.out.println("urlConnection.connection.getResponseMessage(): " + urlConnection.getResponseMessage());
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("nice! urlConnection.responseCode: " + responseCode);
+                    result = convertInputStreamToString(inputStream);
+                    JSONObject json = new JSONObject(result);
+                } else {
+                    android.util.Log.v("CatalogClient", "Response code:" + responseCode);
+                    result = "oh noes";
+                }
+                Log.i("alarm", result);
+
+            } catch (Exception e) {
+                android.util.Log.i("urlConnection", "urlConnection exception occurred");
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null)
+                    urlConnection.disconnect();
+            }
+
+            return result;
+        }
+
+        private String convertInputStreamToString(InputStream inputStream) throws IOException {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String line = "";
+            String result = "";
+            while ((line = bufferedReader.readLine()) != null)
+                result += line;
+
+            inputStream.close();
+            return result;
+
+        }
     }
 }
