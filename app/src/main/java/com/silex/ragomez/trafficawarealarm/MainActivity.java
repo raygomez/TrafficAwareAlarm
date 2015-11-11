@@ -101,6 +101,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 EditText date = (EditText) findViewById(R.id.target_date);
 
                 // send post with input details
+                String path = String.format("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%f,%f&from=%f,%f",
+                        destination.latitude, destination.longitude, origin.latitude, origin.longitude);
+                Log.i(TAG, "path:" + path);
                 new HttpAsyncTask().execute("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=14.661258%2C121.061674&from=14.558194%2C121.085495");
 
             }
