@@ -1,5 +1,6 @@
 package com.silex.ragomez.trafficawarealarm;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -68,7 +69,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             }
         });
 
-
+        alarm = new AlarmManagerBroadcastReceiver();
     }
 
     /**
@@ -87,6 +88,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private LatLng origin = null;
     private LatLng destination = null;
+
+    private AlarmManagerBroadcastReceiver alarm;
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -187,5 +190,15 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "timePicker");
 
+    }
+
+    public void oneTimeTimer(View view) {
+        Context context = getApplicationContext();
+
+        if(alarm != null){
+            alarm.setOnetimeTimer(context);
+        } else {
+            Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+        }
     }
 }

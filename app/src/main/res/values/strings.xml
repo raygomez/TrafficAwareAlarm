@@ -11,5 +11,6 @@
     <string name="date_format">YYYY/MM/DD</string>
     <string name="label_set_alarm">Set the alarm</string>
     <string name="expected_arrival">Set the expected arrival</string>
+    <string name="start_alarm_text">Start Alarm</string>
 
 </resources>
