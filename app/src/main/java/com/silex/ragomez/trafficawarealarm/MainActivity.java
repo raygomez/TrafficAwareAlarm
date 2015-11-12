@@ -75,20 +75,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_date = (EditText) findViewById(R.id.target_date);
         target_time = (EditText) findViewById(R.id.target_time);
 
-        // Set up the 'clear text' button that clears the text in the autocomplete view
-        Button clearButton = (Button) findViewById(R.id.button_clear);
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                originView.setText("");
-                destinationView.setText("");
-                default_date.setText("");
-                default_time.setText("");
-                target_date.setText("");
-                target_time.setText("");
-            }
-        });
-
         alarm = new AlarmManagerBroadcastReceiver();
         Button createAlarm = (Button) findViewById(R.id.button_create);
         createAlarm.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +90,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
             }
         });
-
     }
 
     /**
