@@ -6,8 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.common.logger.Log;
 
@@ -19,126 +17,151 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
     public static final String TAG = "AlarmUpdaterService";
+    private PendingIntent alarmUpdaterBroadcastReceiverPendingIntent;
 
-    public void createRepeatingAlarmTimer(Context context) {
+    public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude, Double destinationLatitude, Double destinationLongitude, long defaultAlarmTime, long targetAlarmTime) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmUpdaterService.class);
-        intent.putExtra("originLatitude", "14.657486");
-        intent.putExtra("originLongitude", "121.056115");
-        intent.putExtra("destinationLatitude", "14.598866");
-        intent.putExtra("destinationLongitude", "120.983778");
-        intent.putExtra("targetAlarmDate", System.currentTimeMillis()+15000);
-        intent.putExtra("defaultDate", System.currentTimeMillis()+1000);
+        Intent intent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
+        intent.putExtra("originLatitude",originLatitude);
+        intent.putExtra("originLongitude", originLongitude);
+        intent.putExtra("destinationLatitude", destinationLatitude);
+        intent.putExtra("destinationLongitude", destinationLongitude);
+        intent.putExtra("targetAlarmDate", targetAlarmTime);
+        intent.putExtra("defaultDate", defaultAlarmTime);
 
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
+        alarmUpdaterBroadcastReceiverPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
-        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 3000,
-                3000, pi);
-        Log.i("Timer", "createRepeatingAlarmTimer started:" + new Date().toString());
+        long prepTime = 5 * 1000;
+        long startTime = targetAlarmTime + prepTime;
+        long interval = 10 * 1000;
+        am.setRepeating(AlarmManager.RTC, startTime,
+                interval, alarmUpdaterBroadcastReceiverPendingIntent);
+        Log.i(TAG, "createRepeatingAlarmTimer started:" + new Date().toString());
 
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String originLatitude = intent.getStringExtra("originLatitude");
-        String originLongitude = intent.getStringExtra("originLongitude");
-        String destinationLatitude = intent.getStringExtra("destinationLatitude");
-        String destinationLongitude = intent.getStringExtra("destinationLongitude");
+        Double originLatitude = intent.getDoubleExtra("originLatitude", 0D);
+        Double originLongitude = intent.getDoubleExtra("originLongitude", 0D);
+        Double destinationLatitude = intent.getDoubleExtra("destinationLatitude", 0D);
+        Double destinationLongitude = intent.getDoubleExtra("destinationLongitude", 0D);
         Long targetAlarmDate = intent.getLongExtra("targetAlarmDate", 0L);
         Long defaultDate = intent.getLongExtra("defaultDate",0L);
 
-        int tripDuration = pollServer(originLatitude, originLongitude, destinationLatitude, destinationLongitude);
+        int tripDuration = 0;
+        try {
+            tripDuration = new PollServerTask().execute(originLatitude, originLongitude, destinationLatitude, destinationLongitude).get();
+        } catch (InterruptedException e) {
+            Log.e(TAG, "InterruptedException occurred");
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            Log.e(TAG, "ExecutionException occurred");
+            e.printStackTrace();
+        }
         Log.i(TAG, String.format("onReceive: http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s", destinationLatitude, destinationLongitude, originLatitude, originLongitude));
-        computeEstimatedWakeUpTime(tripDuration, targetAlarmDate, defaultDate, context);
+        long newComputedTime = computeEstimatedWakeUpTime(tripDuration, targetAlarmDate, defaultDate, context);
+        updateAlarmTime(context, newComputedTime);
     }
 
-    private int pollServer(String originLatitude, String originLongitude, String destinationLatitude, String destinationLongitude) {
-        String urlStr = String.format("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s",
-                destinationLatitude, destinationLongitude, originLatitude, originLongitude);
-        android.util.Log.i("urlConnection", " gonna connect to " + urlStr);
-        InputStream inputStream;
-        String result = "";
-        URL url;
-        int tripDuration = 0;
-        HttpURLConnection urlConnection = null;
-        try {
-            url = new URL(urlStr);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.connect();
-            inputStream = urlConnection.getInputStream();
-            if (!url.getHost().equals(urlConnection.getURL().getHost())) {
-                android.util.Log.i("urlConnection", "we were redirected! Kick the user out to the browser to sign on?");
-            }
-            int responseCode = urlConnection.getResponseCode();
-            System.out.println("urlConnection.responseCode: " + responseCode);
-            System.out.println("urlConnection.connection.getResponseMessage(): " + urlConnection.getResponseMessage());
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("nice! urlConnection.responseCode: " + responseCode);
-                result = convertInputStreamToString(inputStream);
-                JSONObject json = new JSONObject(result);
-                tripDuration = json.getInt("duration_in_seconds");
+    private void updateAlarmTime(Context context, long newComputedTime){
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
+        alarmUpdaterBroadcastReceiverPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
-            } else {
-                android.util.Log.v("CatalogClient", "Response code:" + responseCode);
-                result = "oh noes";
-            }
-            Log.i("alarm", result);
+        am.set(AlarmManager.RTC_WAKEUP, newComputedTime, alarmUpdaterBroadcastReceiverPendingIntent);
+    }
 
-        } catch (Exception e) {
-            android.util.Log.i("urlConnection", "urlConnection exception occurred");
-            e.printStackTrace();
-        } finally {
-            if (urlConnection != null)
-                urlConnection.disconnect();
+    private long computeEstimatedWakeUpTime(int duration, long targetDate, long defaultDate, Context context) {
+        Log.i(TAG, "Travel Time: " + duration/60 + " minutes");
+        long targetAlarmDate = targetDate -  (duration * 1000);
+        Log.i(TAG, "Target Alarm Date: " + new Date(targetAlarmDate).toString());
+        Log.i(TAG, "Default Alarm Date: " + new Date(defaultDate).toString());
+
+        long newComputedAlarm;
+        if(targetAlarmDate < defaultDate) {
+            newComputedAlarm = targetAlarmDate;
+        } else {
+            newComputedAlarm = defaultDate;
+        }
+        Log.i(TAG, "new actualAlarm.getTime(): " + new Date(newComputedAlarm).toString());
+        return newComputedAlarm;
+    }
+
+    public void cancel(Context context) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(alarmUpdaterBroadcastReceiverPendingIntent);
+
+        Intent alarmManagerBroadcastReceiverIntent = new Intent(context, AlarmManagerBroadcastReceiver.class);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmManagerBroadcastReceiverIntent, 0);
+        am.cancel(alarmPendingIntent);
+
+        Log.i(TAG, "timer cancelled");
+
+    }
+
+    private class PollServerTask extends AsyncTask<Double, Integer, Integer>{
+
+        @Override
+        protected Integer doInBackground(Double... params) {
+            return pollServer(params[0], params[1], params[2], params[3]);
         }
 
-        return tripDuration;
-    }
+        private int pollServer(Double originLatitude, Double originLongitude, Double destinationLatitude, Double destinationLongitude) {
+            String urlStr = String.format("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s",
+                    destinationLatitude, destinationLongitude, originLatitude, originLongitude);
+            Log.i(TAG, " gonna connect to " + urlStr);
+            InputStream inputStream;
+            String result = "no result";
+            URL url;
+            int tripDuration = 0;
+            HttpURLConnection urlConnection = null;
+            try {
+                url = new URL(urlStr);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                inputStream = urlConnection.getInputStream();
 
-    private String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while ((line = bufferedReader.readLine()) != null)
-            result += line;
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    result = convertInputStreamToString(inputStream);
+                    JSONObject json = new JSONObject(result);
+                    tripDuration = json.getInt("duration_in_seconds");
 
-        inputStream.close();
-        return result;
+                } else {
+                    Log.v(TAG, "Response code:" + responseCode);
+                }
+                Log.i(TAG, "result: "+result);
 
-    }
-
-
-    private void computeEstimatedWakeUpTime(int duration, long targetDate, long defaultDate, Context context) {
-        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
-
-//            Date targetDate = format.parse(target_date.getText().toString() + ' ' +
-//                    target_time.getText().toString());
-
-//            Date targetAlarmDate = new Date(targetDate.getTime() - 1000 * duration);
-//            Date defaultDate = format.parse(default_date.getText().toString() + ' ' +
-//                    default_time.getText().toString());
-
-            Log.i(TAG, "Travel Time: " + duration/60 + " minutes");
-            long targetAlarmDate = targetDate -  duration;
-            Log.i(TAG, "Target Alarm Date: " + targetAlarmDate);
-            Log.i(TAG, "Default Alarm Date: " + defaultDate);
-
-            long actualAlarm;
-            if(targetAlarmDate < defaultDate) {
-                actualAlarm = targetAlarmDate;
-            } else {
-                actualAlarm = defaultDate;
+            } catch (Exception e) {
+                Log.i(TAG, "urlConnection exception occurred");
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null)
+                    urlConnection.disconnect();
             }
-            Log.i(TAG, "new actualAlarm.getTime(): " + actualAlarm);
-//            setOneTimeTimer(actualAlarm.getTime());
+
+            return tripDuration;
+        }
+
+        private String convertInputStreamToString(InputStream inputStream) throws IOException {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            String result = "";
+            while ((line = bufferedReader.readLine()) != null)
+                result += line;
+
+            inputStream.close();
+            return result;
+
+        }
+
 
     }
 }

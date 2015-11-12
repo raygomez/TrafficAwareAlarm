@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.widget.Toast;
 
 import com.example.android.common.logger.Log;
 
@@ -17,7 +16,6 @@ import java.util.Date;
 //http://www.javacodegeeks.com/2012/09/android-alarmmanager-tutorial.html
 public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
-    final public static String ONE_TIME = "onetime";
     private static final String TAG = "AlarmManagerBroadcastReceiver";
     private PendingIntent pi;
 
@@ -26,9 +24,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "tag");
         wl.acquire();
-
-        Toast.makeText(context, "Timer expired", Toast.LENGTH_LONG).show();
-        Log.i(TAG, "timer expired:" + new Date().toString());
 
         Intent i = new Intent(context, DialogActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -45,13 +40,12 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         pi = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);
-        Log.i(TAG, "timer started:" + new Date().toString()+" timeOfExpiration:"+new Date(timeOfExpiration).toString());
+        Log.i(TAG, "timer started:" + new Date().toString()+" timeOfExpiration: "+new Date(timeOfExpiration).toString());
     }
 
     public void cancel(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pi);
         Log.i(TAG, "timer cancelled");
-
     }
 }
