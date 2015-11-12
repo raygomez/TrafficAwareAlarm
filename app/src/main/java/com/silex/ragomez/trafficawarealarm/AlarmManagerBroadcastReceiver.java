@@ -22,6 +22,7 @@ import java.util.Date;
 public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
     final public static String ONE_TIME = "onetime";
+    private static final String TAG = "AlarmManagerBroadcastReceiver";
     private PendingIntent pi;
 
     @Override
@@ -31,7 +32,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         wl.acquire();
 
         Toast.makeText(context, "Timer expired", Toast.LENGTH_LONG).show();
-        Log.i("Timer", "timer expired:" + new Date().toString());
+        Log.i(TAG, "timer expired:" + new Date().toString());
 
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         Ringtone r = RingtoneManager.getRingtone(context, notification);
@@ -49,19 +50,20 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
     }
 
     public void setOnetimeTimer(Context context, long timeOfExpiration) {
+        cancel(context);
+
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
         pi = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);
-        Log.i("Timer", "timer started:" + new Date().toString());
-
+        Log.i(TAG, "timer started:" + new Date().toString()+" timeOfExpiration:"+new Date(timeOfExpiration).toString());
     }
 
     public void cancel(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pi);
-        Log.i("Timer", "timer cancelled");
+        Log.i(TAG, "timer cancelled");
 
     }
 }

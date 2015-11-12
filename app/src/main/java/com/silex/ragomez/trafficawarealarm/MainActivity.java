@@ -1,6 +1,7 @@
 package com.silex.ragomez.trafficawarealarm;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -89,7 +90,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             }
         });
 
-        alarm = new AlarmManagerBroadcastReceiver();
+//        alarm = new AlarmManagerBroadcastReceiver();
+        alarm = new AlarmUpdaterBroadcastReceiver();
         Button createAlarm = (Button) findViewById(R.id.button_create);
         createAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,8 +102,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 String path = String.format("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%f,%f&from=%f,%f",
                         destination.latitude, destination.longitude, origin.latitude, origin.longitude);
                 Log.i(TAG, "path:" + path);
-                new HttpAsyncTask().execute(path);
-
             }
         });
 
@@ -124,7 +124,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private LatLng origin = null;
     private LatLng destination = null;
 
-    private AlarmManagerBroadcastReceiver alarm;
+    private AlarmUpdaterBroadcastReceiver alarm;
 
     EditText default_date;
     EditText default_time;
@@ -280,30 +280,56 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     }
 
-    public void oneTimeTimer(View view) {
-        Context context = getApplicationContext();
+//    public void oneTimeTimer(View view) {
+//        Context context = getApplicationContext();
+//
+//        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
+//        try {
+//
+//            Date date = format.parse(default_date.getText().toString() + ' ' +
+//                    default_time.getText().toString());
+//            Log.i(TAG, "Date: " + date.toString());
+//            setOneTimeTimer(date.getTime());
+//        } catch (ParseException e) {
+//            Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
 
-        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
-        try {
-
-            Date date = format.parse(default_date.getText().toString() + ' ' +
-                    default_time.getText().toString());
-            Log.i(TAG, "Date: " + date.toString());
-            setOneTimeTimer(date.getTime());
-        } catch (ParseException e) {
-            Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
-        }
-
-    }
+    private AlarmManagerBroadcastReceiver oneTimeAlarm = new AlarmManagerBroadcastReceiver();
 
     private void setOneTimeTimer(long expiration) {
         Context context = getApplicationContext();
-        if(alarm != null){
-            Toast.makeText(context, "Timer started", Toast.LENGTH_LONG).show();
-            alarm.setOnetimeTimer(context, expiration);
-        } else {
+        oneTimeAlarm.setOnetimeTimer(context, expiration);
+    }
+
+    public void repeatingTimer(View view) {
+        Context context = getApplicationContext();
+
+        if(alarm == null){
             Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        try {
+            Date defaultAlarmTime = createDate(default_date, default_time);
+            Date targetArrivalTime = createDate(target_date, target_time);
+
+            setOneTimeTimer(defaultAlarmTime.getTime());
+            alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude, destination.longitude,
+                    defaultAlarmTime.getTime(), targetArrivalTime.getTime());
+        } catch (ParseException e) {
+            Toast.makeText(context, "Couldn't parse date", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
+    }
+
+    private Date createDate(EditText dateText, EditText timeText) throws ParseException {
+        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
+        Date date = format.parse(dateText.getText().toString() + ' ' + timeText.getText().toString());
+        Log.i(TAG, "Date: " + date.toString());
+        return date;
     }
 
 
@@ -311,112 +337,11 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Context context = getApplicationContext();
         if(alarm != null){
             alarm.cancel(context);
-            Toast.makeText(context, "Timer cancelled", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
 
         } else {
             Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
         }
 
-    }
-    private void computeEstimatedWakeUpTime(int duration) {
-        Context context = getApplicationContext();
-
-        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
-        try {
-
-            Date targetDate = format.parse(target_date.getText().toString() + ' ' +
-                    target_time.getText().toString());
-
-            Date targetAlarmDate = new Date(targetDate.getTime() - 1000 * duration);
-            Date defaultDate = format.parse(default_date.getText().toString() + ' ' +
-                    default_time.getText().toString());
-
-            Log.i(TAG, "Travel Time: " + duration/60 + " minutes");
-            Log.i(TAG, "Target Alarm Date: " + targetAlarmDate.toString());
-            Log.i(TAG, "Default Alarm Date: " + defaultDate.toString());
-
-            TextView tv = (TextView) findViewById(R.id.alarm_time);
-            Date actualAlarm;
-            if(targetAlarmDate.getTime() < defaultDate.getTime()) {
-                actualAlarm = targetAlarmDate;
-            } else {
-                actualAlarm = defaultDate;
-            }
-            tv.setText("Alarm:" + format.format(actualAlarm));
-
-            setOneTimeTimer(actualAlarm.getTime());
-
-        } catch (ParseException e) {
-            Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-
-        int message;
-        @Override
-        protected String doInBackground(String... urls) {
-
-            return GET(urls[0]);
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-
-            computeEstimatedWakeUpTime(message);
-        }
-
-        private String GET(String urlStr) {
-            android.util.Log.i("urlConnection", " gonna connect to " + urlStr);
-            InputStream inputStream;
-            String result = "";
-            URL url;
-            HttpURLConnection urlConnection = null;
-            try {
-                url = new URL(urlStr);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.connect();
-                inputStream = urlConnection.getInputStream();
-                if (!url.getHost().equals(urlConnection.getURL().getHost())) {
-                    android.util.Log.i("urlConnection", "we were redirected! Kick the user out to the browser to sign on?");
-                }
-                int responseCode = urlConnection.getResponseCode();
-                System.out.println("urlConnection.responseCode: " + responseCode);
-                System.out.println("urlConnection.connection.getResponseMessage(): " + urlConnection.getResponseMessage());
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("nice! urlConnection.responseCode: " + responseCode);
-                    result = convertInputStreamToString(inputStream);
-                    JSONObject json = new JSONObject(result);
-                    message = json.getInt("duration_in_seconds");
-
-                } else {
-                    android.util.Log.v("CatalogClient", "Response code:" + responseCode);
-                    result = "oh noes";
-                }
-                Log.i("alarm", result);
-
-            } catch (Exception e) {
-                android.util.Log.i("urlConnection", "urlConnection exception occurred");
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null)
-                    urlConnection.disconnect();
-            }
-
-            return result;
-        }
-
-        private String convertInputStreamToString(InputStream inputStream) throws IOException {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            String result = "";
-            while ((line = bufferedReader.readLine()) != null)
-                result += line;
-
-            inputStream.close();
-            return result;
-
-        }
     }
 }

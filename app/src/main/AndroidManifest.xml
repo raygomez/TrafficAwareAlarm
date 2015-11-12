@@ -30,5 +30,7 @@
         </activity>
         <receiver android:name=".AlarmManagerBroadcastReceiver">
         </receiver>
+        <receiver android:name=".AlarmUpdaterBroadcastReceiver">
+        </receiver>
     </application>
 </manifest>

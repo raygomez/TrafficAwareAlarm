@@ -121,7 +121,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/start_alarm_text"
-            android:onClick="oneTimeTimer"/>
+            android:onClick="repeatingTimer"/>
 
         <Button
             android:id="@+id/button_create"
