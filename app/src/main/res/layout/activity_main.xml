@@ -103,6 +103,12 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/alarm_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text=""/>
         <Button
             android:id="@+id/button_clear"
             android:layout_width="wrap_content"

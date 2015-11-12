@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.common.activities.SampleActivityBase;
@@ -288,24 +289,60 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Date date = format.parse(default_date.getText().toString() + ' ' +
                     default_time.getText().toString());
             Log.i(TAG, "Date: " + date.toString());
-
-            if(alarm != null){
-                Log.i("Timer", "timer started:" + new Date().toString());
-                alarm.setOnetimeTimer(context, date.getTime());
-            } else {
-                Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
-            }
-
-
+            setOneTimeTimer(date.getTime());
         } catch (ParseException e) {
             Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
         }
 
     }
 
+    private void setOneTimeTimer(long expiration) {
+        Context context = getApplicationContext();
+        if(alarm != null){
+            Log.i("Timer", "timer started:" + new Date().toString());
+            alarm.setOnetimeTimer(context, expiration);
+        } else {
+            Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void computeEstimatedWakeUpTime(int duration) {
+        Context context = getApplicationContext();
+
+        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
+        try {
+
+            Date targetDate = format.parse(target_date.getText().toString() + ' ' +
+                    target_time.getText().toString());
+
+            Date targetAlarmDate = new Date(targetDate.getTime() - 1000 * duration);
+            Date defaultDate = format.parse(default_date.getText().toString() + ' ' +
+                    default_time.getText().toString());
+
+            Log.i(TAG, "Travel Time: " + duration/60 + " minutes");
+            Log.i(TAG, "Target Alarm Date: " + targetAlarmDate.toString());
+            Log.i(TAG, "Default Alarm Date: " + defaultDate.toString());
+
+            TextView tv = (TextView) findViewById(R.id.alarm_time);
+            Date actualAlarm;
+            if(targetAlarmDate.getTime() < defaultDate.getTime()) {
+                actualAlarm = targetAlarmDate;
+            } else {
+                actualAlarm = defaultDate;
+            }
+            tv.setText("Alarm:" + format.format(actualAlarm));
+
+            setOneTimeTimer(actualAlarm.getTime());
+
+        } catch (ParseException e) {
+            Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
 
-        String message;
+        int message;
         @Override
         protected String doInBackground(String... urls) {
 
@@ -315,7 +352,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getBaseContext(), "Estimated time: " + message + "seconds", Toast.LENGTH_LONG).show();
+
+            computeEstimatedWakeUpTime(message);
         }
 
         private String GET(String urlStr) {
@@ -339,7 +377,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                     System.out.println("nice! urlConnection.responseCode: " + responseCode);
                     result = convertInputStreamToString(inputStream);
                     JSONObject json = new JSONObject(result);
-                    message = json.get("duration_in_seconds").toString();
+                    message = json.getInt("duration_in_seconds");
 
                 } else {
                     android.util.Log.v("CatalogClient", "Response code:" + responseCode);
