@@ -6,6 +6,10 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.PowerManager;
 import android.widget.Toast;
 
@@ -23,13 +27,25 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "tag");
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "tag");
         wl.acquire();
 
         Toast.makeText(context, "Timer expired", Toast.LENGTH_LONG).show();
         Log.i("Timer", "timer expired:" + new Date().toString());
 
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        Ringtone r = RingtoneManager.getRingtone(context, notification);
+        r.play();
+
         wl.release();
+        try {
+            synchronized (this) {
+                wait(3000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        r.stop();
     }
 
     public void setOnetimeTimer(Context context, long timeOfExpiration) {
