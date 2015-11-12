@@ -299,13 +299,25 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private void setOneTimeTimer(long expiration) {
         Context context = getApplicationContext();
         if(alarm != null){
-            Log.i("Timer", "timer started:" + new Date().toString());
+            Toast.makeText(context, "Timer started", Toast.LENGTH_LONG).show();
             alarm.setOnetimeTimer(context, expiration);
         } else {
             Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
         }
     }
 
+
+    public void stopTimer(View view) {
+        Context context = getApplicationContext();
+        if(alarm != null){
+            alarm.cancel(context);
+            Toast.makeText(context, "Timer cancelled", Toast.LENGTH_LONG).show();
+
+        } else {
+            Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+        }
+
+    }
     private void computeEstimatedWakeUpTime(int duration) {
         Context context = getApplicationContext();
 
@@ -338,7 +350,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
 

@@ -18,6 +18,7 @@ import java.util.Date;
 public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
     final public static String ONE_TIME = "onetime";
+    private PendingIntent pi;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -34,8 +35,17 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
     public void setOnetimeTimer(Context context, long timeOfExpiration) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
+        pi = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);
+        Log.i("Timer", "timer started:" + new Date().toString());
+
+    }
+
+    public void cancel(Context context) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pi);
+        Log.i("Timer", "timer cancelled");
+
     }
 }
