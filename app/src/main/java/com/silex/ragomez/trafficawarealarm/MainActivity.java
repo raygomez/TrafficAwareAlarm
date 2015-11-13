@@ -1,12 +1,16 @@
 package com.silex.ragomez.trafficawarealarm;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.common.activities.SampleActivityBase;
@@ -88,8 +92,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_date = (EditText) findViewById(R.id.target_date);
         target_time = (EditText) findViewById(R.id.target_time);
 
-        alarm = new AlarmUpdaterBroadcastReceiver();    
-	}    
+//        alarm = new AlarmManagerBroadcastReceiver();
+        alarm = new AlarmUpdaterBroadcastReceiver();
+    }
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that

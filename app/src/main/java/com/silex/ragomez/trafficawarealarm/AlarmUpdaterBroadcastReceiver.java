@@ -23,7 +23,9 @@ import java.util.concurrent.ExecutionException;
 public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
     public static final String TAG = "AlarmUpdaterService";
-    private static final long POLLING_INTERVAL = 15 * 60 * 1000;
+//    private static final long POLLING_INTERVAL = 15 * 60 * 1000;
+    private static final long POLLING_INTERVAL = 5 * 1000;
+    private static final long START_OF_POLLING_TIME = 2 * 60 * 60 * 1000;
     private PendingIntent alarmUpdaterBroadcastReceiverPendingIntent;
 
     public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude, Double destinationLatitude, Double destinationLongitude, long defaultAlarmTime, long targetAlarmTime) {
@@ -39,10 +41,12 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         alarmUpdaterBroadcastReceiverPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         long prepTime = 5 * 1000;
-        long startTime = targetAlarmTime + prepTime;
-        am.setRepeating(AlarmManager.RTC, startTime,
+        long startTime = defaultAlarmTime - START_OF_POLLING_TIME;
+        am.setRepeating(AlarmManager.RTC, startTime - START_OF_POLLING_TIME,
                 POLLING_INTERVAL, alarmUpdaterBroadcastReceiverPendingIntent);
-        Log.i(TAG, "createRepeatingAlarmTimer started:" + new Date().toString());
+
+        Log.i(TAG, "createRepeatingAlarmTimer startTime:" + new Date(startTime).toString());
+        Log.i(TAG, "createRepeatingAlarmTimer interval:" + (POLLING_INTERVAL) + " seconds");
 
     }
 
@@ -67,15 +71,39 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         }
         Log.i(TAG, String.format("onReceive: http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s", destinationLatitude, destinationLongitude, originLatitude, originLongitude));
         long newComputedTime = computeEstimatedWakeUpTime(tripDuration, targetAlarmDate, defaultDate, context);
-        updateAlarmTime(context, newComputedTime);
+        updateAlarmTime(context, newComputedTime, defaultDate);
     }
 
-    private void updateAlarmTime(Context context, long newComputedTime){
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
-        alarmUpdaterBroadcastReceiverPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+    private void updateAlarmTime(Context context, long newComputedTime, long defaultAlarmTime){
 
-        am.set(AlarmManager.RTC_WAKEUP, newComputedTime, alarmUpdaterBroadcastReceiverPendingIntent);
+        //if newComputedTime is less than the polling interval before default alarm time
+        //  setOneTimeTimer to the default alarmtime
+        if(newComputedTime < ( defaultAlarmTime - POLLING_INTERVAL )){
+            setOneTimeTimer(context, newComputedTime);
+            cancel(context);
+            return;
+        }
+
+        //if newComputedTime is less than the polling interval
+        // setOneTimeTimer to the newComputedTime
+        if(defaultAlarmTime < (System.currentTimeMillis() + POLLING_INTERVAL)){
+            setOneTimeTimer(context, defaultAlarmTime);
+            cancel(context);
+            return;
+        }
+
+//        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
+//        alarmUpdaterBroadcastReceiverPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+//
+//        am.set(AlarmManager.RTC_WAKEUP, newComputedTime, alarmUpdaterBroadcastReceiverPendingIntent);
+    }
+
+
+    private void setOneTimeTimer(Context context, long expiration) {
+        AlarmManagerBroadcastReceiver oneTimeAlarm = new AlarmManagerBroadcastReceiver();
+        oneTimeAlarm.setOnetimeTimer(context, expiration);
+        Log.i(TAG, "setOneTimeTimer expiration:"+new Date(expiration));
     }
 
     private long computeEstimatedWakeUpTime(int duration, long targetDate, long defaultDate, Context context) {
@@ -97,10 +125,6 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
     public void cancel(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.cancel(alarmUpdaterBroadcastReceiverPendingIntent);
-
-        Intent alarmManagerBroadcastReceiverIntent = new Intent(context, AlarmManagerBroadcastReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmManagerBroadcastReceiverIntent, 0);
-        am.cancel(alarmPendingIntent);
 
         Log.i(TAG, "timer cancelled");
 

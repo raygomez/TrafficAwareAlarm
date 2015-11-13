@@ -37,17 +37,22 @@ public class DialogActivity extends SampleActivityBase {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         r.stop();
-                        Context context = getApplicationContext();
-                        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        Intent alarmUpdaterIntent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
-                        PendingIntent alarmUpdaterPendingIntent = PendingIntent.getBroadcast(context, 0, alarmUpdaterIntent, 0);;
-                        am.cancel(alarmUpdaterPendingIntent);
-                        Log.i(TAG, "cancelled alarmUpdaterPendingIntent");
                         v.cancel();
                         finish();
                     }
                 });
+
+        cancelAlarmUpdater();
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void cancelAlarmUpdater() {
+        Context context = getApplicationContext();
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmUpdaterIntent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
+        PendingIntent alarmUpdaterPendingIntent = PendingIntent.getBroadcast(context, 0, alarmUpdaterIntent, 0);;
+        am.cancel(alarmUpdaterPendingIntent);
+        Log.i(TAG, "cancelled alarmUpdaterPendingIntent");
     }
 }
