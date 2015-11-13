@@ -69,7 +69,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Double destinationLongitude = intent.getDoubleExtra("destinationLongitude", 0D);
         Long targetAlarmDate = intent.getLongExtra("targetAlarmDate", 0L);
         Long defaultDate = intent.getLongExtra("defaultDate", 0L);
-        Long prep = intent.getLongExtra("prepTime", 0L);
+        Long prepTime = intent.getLongExtra("prepTime", 0L);
 
         Log.i(TAG, "a:originLatitude" + originLatitude);
         Log.i(TAG, "a:originLongitude" + originLongitude);
@@ -77,7 +77,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "a:destinationLongitude" + destinationLongitude);
         Log.i(TAG, "a:targetAlarmDate" + new Date(targetAlarmDate).toString());
         Log.i(TAG, "a:defaultDate" + new Date(defaultDate).toString());
-        Log.i(TAG, "a:prepTime" + prep);
+        Log.i(TAG, "a:prepTime" + prepTime);
 
         int tripDuration = 0;
         try {
@@ -91,7 +91,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         }
         Log.i(TAG, String.format("onReceive: http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s", destinationLatitude, destinationLongitude, originLatitude, originLongitude));
         Log.i(TAG, "" + defaultDate);
-        long newComputedTime = computeEstimatedWakeUpTime(tripDuration, targetAlarmDate, defaultDate, context);
+        long newComputedTime = computeEstimatedWakeUpTime(tripDuration, targetAlarmDate - prepTime, defaultDate, context);
         updateAlarmTime(context, newComputedTime, defaultDate);
     }
 

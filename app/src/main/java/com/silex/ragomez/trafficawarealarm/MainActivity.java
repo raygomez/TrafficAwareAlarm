@@ -257,10 +257,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             String input = prep.getText().toString();
             int hours = getHoursFromInput(input);
             int minutes = getMinutesFromInput(input);
-            int seconds = hours * 60 * 60 + minutes * 60;
+            int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
             alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude,
                     destination.longitude, defaultAlarmTime.getTime(),
-                    targetArrivalTime.getTime(), seconds);
+                    targetArrivalTime.getTime(), milliseconds);
         } catch (ParseException e) {
             Toast.makeText(context, "Couldn't parse date", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
