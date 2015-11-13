@@ -28,7 +28,9 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
     private static final long START_OF_POLLING_TIME = 2 * 60 * 60 * 1000;
 
 
-    public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude, Double destinationLatitude, Double destinationLongitude, long defaultAlarmTime, long targetAlarmTime) {
+    public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude,
+                                          Double destinationLatitude, Double destinationLongitude,
+                                          long defaultAlarmTime, long targetAlarmTime, long prepTime) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
 
@@ -38,6 +40,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         intent.putExtra("destinationLongitude", destinationLongitude);
         intent.putExtra("targetAlarmDate", targetAlarmTime);
         intent.putExtra("defaultDate", defaultAlarmTime);
+        intent.putExtra("prepTime", prepTime);
 
         PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -55,6 +58,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "destinationLongitude" + destinationLongitude);
         Log.i(TAG, "targetAlarmDate" + new Date(targetAlarmTime).toString());
         Log.i(TAG, "defaultDate" + new Date(defaultAlarmTime).toString());
+        Log.i(TAG, "prepTime" + prepTime);
     }
 
     @Override
@@ -64,7 +68,8 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Double destinationLatitude = intent.getDoubleExtra("destinationLatitude", 0D);
         Double destinationLongitude = intent.getDoubleExtra("destinationLongitude", 0D);
         Long targetAlarmDate = intent.getLongExtra("targetAlarmDate", 0L);
-        Long defaultDate = intent.getLongExtra("defaultDate",0L);
+        Long defaultDate = intent.getLongExtra("defaultDate", 0L);
+        Long prep = intent.getLongExtra("prepTime", 0L);
 
         Log.i(TAG, "a:originLatitude" + originLatitude);
         Log.i(TAG, "a:originLongitude" + originLongitude);
@@ -72,6 +77,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "a:destinationLongitude" + destinationLongitude);
         Log.i(TAG, "a:targetAlarmDate" + new Date(targetAlarmDate).toString());
         Log.i(TAG, "a:defaultDate" + new Date(defaultDate).toString());
+        Log.i(TAG, "a:prepTime" + prep);
 
         int tripDuration = 0;
         try {

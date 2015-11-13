@@ -58,7 +58,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private EditText default_time;
     private EditText target_date;
     private EditText target_time;
-	
+    private EditText prep;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +93,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         default_time = (EditText) findViewById(R.id.default_time);
         target_date = (EditText) findViewById(R.id.target_date);
         target_time = (EditText) findViewById(R.id.target_time);
+        prep = (EditText) findViewById(R.id.prep_time);
 
         alarm = new AlarmUpdaterBroadcastReceiver();
     }
@@ -252,8 +254,13 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Date defaultAlarmTime = createDate(default_date, default_time);
             Date targetArrivalTime = createDate(target_date, target_time);
 
-            alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude, destination.longitude,
-                    defaultAlarmTime.getTime(), targetArrivalTime.getTime());
+            String input = prep.getText().toString();
+            int hours = getHoursFromInput(input);
+            int minutes = getMinutesFromInput(input);
+            int seconds = hours * 60 * 60 + minutes * 60;
+            alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude,
+                    destination.longitude, defaultAlarmTime.getTime(),
+                    targetArrivalTime.getTime(), seconds);
         } catch (ParseException e) {
             Toast.makeText(context, "Couldn't parse date", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
@@ -296,16 +303,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         final String[] minutes = new String[] { "0 minute", "15 minutes", "30 minutes", "45 minutes"};
         minPicker.setDisplayedValues(minutes);
 
-        final EditText prep = (EditText) findViewById(R.id.prep_time);
 
         setButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String input = hours[hourPicker.getValue()] + ", " + minutes[minPicker.getValue()];
                 prep.setText(input);
-                Log.i(TAG, "Hours: " + getHoursFromInput(input));
-                Log.i(TAG, "Minutes: " + getMinutesFromInput(input));
-
                 d.dismiss();
             }
         });
