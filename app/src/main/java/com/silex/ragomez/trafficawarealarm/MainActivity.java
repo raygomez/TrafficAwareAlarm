@@ -33,6 +33,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -244,8 +246,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "timePicker");
 
-    }    
-    
+    }
+
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
@@ -279,22 +281,38 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void openNumberPickerDialog(View view) {
         final Dialog d = new Dialog(MainActivity.this);
         d.setContentView(R.layout.number_picker_dialog);
-        Button b1 = (Button) d.findViewById(R.id.button1);
-        Button b2 = (Button) d.findViewById(R.id.button2);
-        final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
-        np.setMaxValue(100);
-        np.setMinValue(0);
-        np.setWrapSelectorWheel(false);
-        np.setOnValueChangedListener(this);
-        b1.setOnClickListener(new View.OnClickListener()
-        {
+        Button setButton = (Button) d.findViewById(R.id.set_button);
+        Button cancelButton = (Button) d.findViewById(R.id.cancel_button);
+
+        final NumberPicker hourPicker = (NumberPicker) d.findViewById(R.id.prep_hours);
+        hourPicker.setMaxValue(2);
+        hourPicker.setMinValue(0);
+
+        final String[] hours = new String[] { "0 hour", "1 hour", "2 hours"};
+        hourPicker.setDisplayedValues(hours);
+
+
+        final NumberPicker minPicker = (NumberPicker) d.findViewById(R.id.prep_minutes);
+        minPicker.setMaxValue(2);
+        minPicker.setMinValue(0);
+
+        final String[] minutes = new String[] { "0 minute", "15 minutes", "30 minutes", "45 minutes"};
+        minPicker.setDisplayedValues(minutes);
+
+        final EditText prep = (EditText) findViewById(R.id.prep_time);
+
+        setButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String input = hours[hourPicker.getValue()] + ", " + minutes[minPicker.getValue()];
+                prep.setText(input);
+                Log.i(TAG, "Hours: " + getHoursFromInput(input));
+                Log.i(TAG, "Minutes: " + getMinutesFromInput(input));
+
                 d.dismiss();
             }
         });
-        b2.setOnClickListener(new View.OnClickListener()
-        {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 d.dismiss();
@@ -303,10 +321,26 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         d.show();
     }
 
-    @Override
-    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+    private int getHoursFromInput(String input) {
 
+        Pattern p = Pattern.compile("(\\d+) hour[s]?, (\\d+) minute[s]+");
+        Matcher m = p.matcher(input);
+
+        if(m.find()) {
+            return Integer.parseInt(m.group(1));
+        } else {
+            return 0;
+        }
     }
+    private int getMinutesFromInput(String input) {
 
-   }
+        Pattern p = Pattern.compile("(\\d+) hour[s]?, (\\d+) minute[s]+");
+        Matcher m = p.matcher(input);
+
+        if(m.find()) {
+            return Integer.parseInt(m.group(2));
+        } else {
+            return 0;
+        }
+    }
 }
