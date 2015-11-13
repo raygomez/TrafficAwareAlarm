@@ -10,6 +10,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 
 import com.example.android.common.activities.SampleActivityBase;
 import com.example.android.common.logger.Log;
@@ -25,6 +26,10 @@ public class DialogActivity extends SampleActivityBase {
         final Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
         r.play();
 
+        final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        final long[] pattern = {0, 100, 1000};
+        v.vibrate(pattern, 0);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Time's Up").setCancelable(
                 false).setPositiveButton("Cancel Alarm",
@@ -37,6 +42,7 @@ public class DialogActivity extends SampleActivityBase {
                         PendingIntent alarmUpdaterPendingIntent = PendingIntent.getBroadcast(context, 0, alarmUpdaterIntent, 0);;
                         am.cancel(alarmUpdaterPendingIntent);
                         Log.i(TAG, "cancelled alarmUpdaterPendingIntent");
+                        v.cancel();
                         finish();
                     }
                 });

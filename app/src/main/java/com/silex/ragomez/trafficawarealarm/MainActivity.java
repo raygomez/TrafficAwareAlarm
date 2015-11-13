@@ -76,20 +76,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_date = (EditText) findViewById(R.id.target_date);
         target_time = (EditText) findViewById(R.id.target_time);
 
-        // Set up the 'clear text' button that clears the text in the autocomplete view
-        Button clearButton = (Button) findViewById(R.id.button_clear);
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                originView.setText("");
-                destinationView.setText("");
-                default_date.setText("");
-                default_time.setText("");
-                target_date.setText("");
-                target_time.setText("");
-            }
-        });
-
 //        alarm = new AlarmManagerBroadcastReceiver();
         alarm = new AlarmUpdaterBroadcastReceiver();
         Button createAlarm = (Button) findViewById(R.id.button_create);
@@ -104,7 +90,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 Log.i(TAG, "path:" + path);
             }
         });
-
     }
 
     /**
@@ -278,31 +263,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newFragment.setArguments(args);
         newFragment.show(getSupportFragmentManager(), "timePicker");
 
-    }
-
-//    public void oneTimeTimer(View view) {
-//        Context context = getApplicationContext();
-//
-//        DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
-//        try {
-//
-//            Date date = format.parse(default_date.getText().toString() + ' ' +
-//                    default_time.getText().toString());
-//            Log.i(TAG, "Date: " + date.toString());
-//            setOneTimeTimer(date.getTime());
-//        } catch (ParseException e) {
-//            Toast.makeText(context, "Parsing the date is not successful", Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
-
-    private AlarmManagerBroadcastReceiver oneTimeAlarm = new AlarmManagerBroadcastReceiver();
-
-    private void setOneTimeTimer(long expiration) {
-        Context context = getApplicationContext();
-        oneTimeAlarm.setOnetimeTimer(context, expiration);
-    }
-
+    }    
+    
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
@@ -315,7 +277,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Date defaultAlarmTime = createDate(default_date, default_time);
             Date targetArrivalTime = createDate(target_date, target_time);
 
-            setOneTimeTimer(defaultAlarmTime.getTime());
             alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude, destination.longitude,
                     defaultAlarmTime.getTime(), targetArrivalTime.getTime());
         } catch (ParseException e) {
