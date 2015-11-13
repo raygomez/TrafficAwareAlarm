@@ -14,6 +14,7 @@
     <string name="cancel_alarm">Cancel Alarm</string>
     <string name="label_preparation_time">Set preparation time</string>
     <string name="hint_preparation_time">Indicate preparation time</string>
+    <string name="default_prep_time">0 hour, 0 minutes</string>
 
 
 </resources>
