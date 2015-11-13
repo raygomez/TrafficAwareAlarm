@@ -13,7 +13,7 @@
     <string name="start_alarm_text">Start Alarm</string>
     <string name="cancel_alarm">Cancel Alarm</string>
     <string name="label_preparation_time">Set preparation time</string>
-    <string name="hint_preparation_time">Indicate preparation time.</string>
+    <string name="hint_preparation_time">Indicate preparation time</string>
 
 
 </resources>
