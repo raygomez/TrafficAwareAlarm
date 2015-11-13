@@ -27,7 +27,7 @@ public class DialogActivity extends SampleActivityBase {
         r.play();
 
         final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        final long[] pattern = {0, 100, 1000};
+        final long[] pattern = {0, 1000, 100};
         v.vibrate(pattern, 0);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
