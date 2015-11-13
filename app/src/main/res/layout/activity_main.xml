@@ -43,8 +43,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/label_set_alarm"/>
+            android:text="@string/label_preparation_time"/>
 
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:onClick="openNumberPickerDialog"
+            android:hint="@string/hint_preparation_time"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/label_set_alarm"
+            android:id="@+id/textView" />
 
         <LinearLayout
             android:layout_width="match_parent"

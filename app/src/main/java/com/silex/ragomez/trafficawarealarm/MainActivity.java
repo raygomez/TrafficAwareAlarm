@@ -1,5 +1,6 @@
 package com.silex.ragomez.trafficawarealarm;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +34,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener, NumberPicker.OnValueChangeListener {
 
 /**
      * GoogleApiClient wraps our service connection to Google Play Services and provides access
@@ -92,7 +94,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_date = (EditText) findViewById(R.id.target_date);
         target_time = (EditText) findViewById(R.id.target_time);
 
-//        alarm = new AlarmManagerBroadcastReceiver();
         alarm = new AlarmUpdaterBroadcastReceiver();
     }
 
@@ -273,5 +274,37 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Context context = getApplicationContext();
         alarm.cancel(context);
         Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
+    }
+
+    public void openNumberPickerDialog(View view) {
+        final Dialog d = new Dialog(MainActivity.this);
+        d.setContentView(R.layout.number_picker_dialog);
+        Button b1 = (Button) d.findViewById(R.id.button1);
+        Button b2 = (Button) d.findViewById(R.id.button2);
+        final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
+        np.setMaxValue(100);
+        np.setMinValue(0);
+        np.setWrapSelectorWheel(false);
+        np.setOnValueChangedListener(this);
+        b1.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        b2.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
+    @Override
+    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+        
     }
 }
