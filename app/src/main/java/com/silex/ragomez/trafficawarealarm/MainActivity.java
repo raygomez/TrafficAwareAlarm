@@ -323,7 +323,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private int getHoursFromInput(String input) {
 
-        Pattern p = Pattern.compile("(\\d+) hour[s]?, (\\d+) minute[s]+");
+        Pattern p = Pattern.compile("(\\d+) hour[s]?, (\\d+) minute[s]?");
         Matcher m = p.matcher(input);
 
         if(m.find()) {
