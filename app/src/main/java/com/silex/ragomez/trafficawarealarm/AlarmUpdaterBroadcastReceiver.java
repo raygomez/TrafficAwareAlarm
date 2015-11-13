@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
     public static final String TAG = "AlarmUpdaterService";
+    private static final long POLLING_INTERVAL = 15 * 60 * 1000;
     private PendingIntent alarmUpdaterBroadcastReceiverPendingIntent;
 
     public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude, Double destinationLatitude, Double destinationLongitude, long defaultAlarmTime, long targetAlarmTime) {
@@ -39,9 +40,8 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
         long prepTime = 5 * 1000;
         long startTime = targetAlarmTime + prepTime;
-        long interval = 10 * 1000;
         am.setRepeating(AlarmManager.RTC, startTime,
-                interval, alarmUpdaterBroadcastReceiverPendingIntent);
+                POLLING_INTERVAL, alarmUpdaterBroadcastReceiverPendingIntent);
         Log.i(TAG, "createRepeatingAlarmTimer started:" + new Date().toString());
 
     }

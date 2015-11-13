@@ -1,16 +1,12 @@
 package com.silex.ragomez.trafficawarealarm;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.common.activities.SampleActivityBase;
@@ -27,14 +23,6 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,6 +30,30 @@ import java.util.Date;
 
 public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener {
 
+/**
+     * GoogleApiClient wraps our service connection to Google Play Services and provides access
+     * to the user's sign in state as well as the Google's APIs.
+     */
+    protected GoogleApiClient mGoogleApiClient;
+
+    private PlaceAutocompleteAdapter mAdapter;
+
+    private AutoCompleteTextView originView;
+    private AutoCompleteTextView destinationView;
+
+    private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
+            new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
+
+    private LatLng origin = null;
+    private LatLng destination = null;
+
+    private AlarmUpdaterBroadcastReceiver alarm;
+
+    private EditText default_date;
+    private EditText default_time;
+    private EditText target_date;
+    private EditText target_time;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,45 +88,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_date = (EditText) findViewById(R.id.target_date);
         target_time = (EditText) findViewById(R.id.target_time);
 
-//        alarm = new AlarmManagerBroadcastReceiver();
-        alarm = new AlarmUpdaterBroadcastReceiver();
-        Button createAlarm = (Button) findViewById(R.id.button_create);
-        createAlarm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // check details
-                // send post with input details
-                String path = String.format("http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%f,%f&from=%f,%f",
-                        destination.latitude, destination.longitude, origin.latitude, origin.longitude);
-                Log.i(TAG, "path:" + path);
-            }
-        });
-    }
-
-    /**
-     * GoogleApiClient wraps our service connection to Google Play Services and provides access
-     * to the user's sign in state as well as the Google's APIs.
-     */
-    protected GoogleApiClient mGoogleApiClient;
-
-    private PlaceAutocompleteAdapter mAdapter;
-
-    private AutoCompleteTextView originView;
-    private AutoCompleteTextView destinationView;
-
-    private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
-            new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
-
-    private LatLng origin = null;
-    private LatLng destination = null;
-
-    private AlarmUpdaterBroadcastReceiver alarm;
-
-    EditText default_date;
-    EditText default_time;
-    EditText target_date;
-    EditText target_time;
+        alarm = new AlarmUpdaterBroadcastReceiver();    
+	}    
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -148,8 +123,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                     .getPlaceById(mGoogleApiClient, placeId);
             placeResult.setResultCallback(originUpdatePlaceDetailsCallback);
 
-            Toast.makeText(getApplicationContext(), "Clicked: " + primaryText,
-                    Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Clicked: " + primaryText,
+            //        Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Called getPlaceById to get Place details for " + placeId);
         }
     };
@@ -177,8 +152,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                     .getPlaceById(mGoogleApiClient, placeId);
             placeResult.setResultCallback(destinationUpdatePlaceDetailsCallback);
 
-            Toast.makeText(getApplicationContext(), "Clicked: " + primaryText,
-                    Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Clicked: " + primaryText,
+            //        Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Called getPlaceById to get Place details for " + placeId);
         }
     };
@@ -268,11 +243,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        if(alarm == null){
-            Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         try {
             Date defaultAlarmTime = createDate(default_date, default_time);
             Date targetArrivalTime = createDate(target_date, target_time);
@@ -296,13 +266,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void stopTimer(View view) {
         Context context = getApplicationContext();
-        if(alarm != null){
-            alarm.cancel(context);
-            Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
-
-        } else {
-            Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
-        }
-
+        alarm.cancel(context);
+        Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
     }
 }

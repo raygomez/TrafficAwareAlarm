@@ -2,8 +2,6 @@
     <string name="app_name">Traffic Aware Alarm</string>
     <string name="autocomplete_hint">Enter place name or address</string>
     <string name="selected_place">Last Selected Place:</string>
-    <string name="clear_text">Clear inputs</string>
-    <string name="create_alarm">Create Alarm</string>
 
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>
