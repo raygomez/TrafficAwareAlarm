@@ -34,7 +34,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener, NumberPicker.OnValueChangeListener {
+public class MainActivity extends SampleActivityBase implements GoogleApiClient.OnConnectionFailedListener {
 
 /**
      * GoogleApiClient wraps our service connection to Google Play Services and provides access
@@ -305,6 +305,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-        
+
     }
+
+   }
 }
