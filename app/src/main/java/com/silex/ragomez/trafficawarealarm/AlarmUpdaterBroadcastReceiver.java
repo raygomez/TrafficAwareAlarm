@@ -26,7 +26,6 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
     public static final String TAG = "AlarmUpdaterService";
     private static final long POLLING_INTERVAL = 5 * 1000;
     private static final long START_OF_POLLING_TIME = 2 * 60 * 60 * 1000;
-    private PendingIntent alarmUpdaterBroadcastReceiverPendingIntent;
 
 
     public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude, Double destinationLatitude, Double destinationLongitude, long defaultAlarmTime, long targetAlarmTime) {
@@ -40,18 +39,22 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         intent.putExtra("targetAlarmDate", targetAlarmTime);
         intent.putExtra("defaultDate", defaultAlarmTime);
 
-        alarmUpdaterBroadcastReceiverPendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 
         long startTime = defaultAlarmTime - START_OF_POLLING_TIME;
         am.setRepeating(AlarmManager.RTC, startTime,
-                POLLING_INTERVAL, alarmUpdaterBroadcastReceiverPendingIntent);
+                POLLING_INTERVAL, sender);
 
         Log.i(TAG, "createRepeatingAlarmTimer startTime:" + new Date(startTime).toString());
         Log.i(TAG, "createRepeatingAlarmTimer interval:" + (POLLING_INTERVAL) + " seconds");
 
-        Log.i(TAG, "" + defaultAlarmTime);
-
+        Log.i(TAG, "originLatitude" + originLatitude);
+        Log.i(TAG, "originLongitude" + originLongitude);
+        Log.i(TAG, "destinationLatitude" + destinationLatitude);
+        Log.i(TAG, "destinationLongitude" + destinationLongitude);
+        Log.i(TAG, "targetAlarmDate" + new Date(targetAlarmTime).toString());
+        Log.i(TAG, "defaultDate" + new Date(defaultAlarmTime).toString());
     }
 
     @Override
@@ -62,6 +65,13 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Double destinationLongitude = intent.getDoubleExtra("destinationLongitude", 0D);
         Long targetAlarmDate = intent.getLongExtra("targetAlarmDate", 0L);
         Long defaultDate = intent.getLongExtra("defaultDate",0L);
+
+        Log.i(TAG, "a:originLatitude" + originLatitude);
+        Log.i(TAG, "a:originLongitude" + originLongitude);
+        Log.i(TAG, "a:destinationLatitude" + destinationLatitude);
+        Log.i(TAG, "a:destinationLongitude" + destinationLongitude);
+        Log.i(TAG, "a:targetAlarmDate" + new Date(targetAlarmDate).toString());
+        Log.i(TAG, "a:defaultDate" + new Date(defaultDate).toString());
 
         int tripDuration = 0;
         try {
@@ -94,7 +104,6 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         if(defaultAlarmTime < (System.currentTimeMillis() + POLLING_INTERVAL)){
             setOneTimeTimer(context, defaultAlarmTime);
             cancel(context);
-            return;
         }
     }
 
@@ -123,7 +132,10 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
     public void cancel(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        am.cancel(alarmUpdaterBroadcastReceiverPendingIntent);
+        Intent intent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        am.cancel(sender);
 
         Log.i(TAG, "timer cancelled");
 
