@@ -250,34 +250,53 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        try {
-            Date defaultAlarmTime = createDate(default_date, default_time);
-            Date targetArrivalTime = createDate(target_date, target_time);
-
-            if(timeHasElapsed(defaultAlarmTime)){
-                showToast(context, "Given alarm time has passed. Please input a later alarm time.");
-                return;
-            }
-            if(timeHasElapsed(targetArrivalTime)){
-                showToast(context, "Given arrival time has passed. Please input a later arrival time.");
-                return;
-            }
-            if(defaultAlarmTime.getTime() > targetArrivalTime.getTime()){
-                showToast(context, "Target arrival time must be later than alarm time. Please input an alarm time earlier than your target arrival time.");
-                return;
-            }
-
-            String input = prep.getText().toString();
-            int hours = getHoursFromInput(input);
-            int minutes = getMinutesFromInput(input);
-            int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
-            alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude,
-                    destination.longitude, defaultAlarmTime.getTime(),
-                    targetArrivalTime.getTime(), milliseconds);
-        } catch (ParseException e) {
-            Toast.makeText(context, "Couldn't parse date", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+        if(origin == null){
+            showToast(context, "Please enter an origin.");
+            return;
         }
+        if(destination == null){
+            showToast(context, "Please enter a destination.");
+            return;
+        }
+
+        Date defaultAlarmTime, targetArrivalTime;
+        try{
+            defaultAlarmTime = createDate(default_date, default_time);
+        }
+        catch (ParseException e){
+            showToast(context, "Please enter an alarm time.");
+            return;
+        }
+
+        try{
+            targetArrivalTime = createDate(target_date, target_time);
+        }
+        catch(ParseException e){
+            showToast(context, "Please enter a target arrival time.");
+            return;
+        }
+
+
+        if(timeHasElapsed(defaultAlarmTime)){
+            showToast(context, "Given alarm time has passed. Please input a later alarm time.");
+            return;
+        }
+        if(timeHasElapsed(targetArrivalTime)){
+            showToast(context, "Given arrival time has passed. Please input a later arrival time.");
+            return;
+        }
+        if(defaultAlarmTime.getTime() > targetArrivalTime.getTime()){
+            showToast(context, "Target arrival time must be later than alarm time. Please input an alarm time earlier than your target arrival time.");
+            return;
+        }
+
+        String input = prep.getText().toString();
+        int hours = getHoursFromInput(input);
+        int minutes = getMinutesFromInput(input);
+        int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
+        alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude,
+                destination.longitude, defaultAlarmTime.getTime(),
+                targetArrivalTime.getTime(), milliseconds);
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
     }
 
