@@ -254,6 +254,19 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Date defaultAlarmTime = createDate(default_date, default_time);
             Date targetArrivalTime = createDate(target_date, target_time);
 
+            if(timeHasElapsed(defaultAlarmTime)){
+                showToast(context, "Given alarm time has passed. Please input a later alarm time.");
+                return;
+            }
+            if(timeHasElapsed(targetArrivalTime)){
+                showToast(context, "Given arrival time has passed. Please input a later arrival time.");
+                return;
+            }
+            if(defaultAlarmTime.getTime() > targetArrivalTime.getTime()){
+                showToast(context, "Target arrival time must be later than alarm time. Please input an alarm time earlier than your target arrival time.");
+                return;
+            }
+
             String input = prep.getText().toString();
             int hours = getHoursFromInput(input);
             int minutes = getMinutesFromInput(input);
@@ -266,6 +279,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             e.printStackTrace();
         }
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
+    }
+
+    private void showToast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+    private boolean timeHasElapsed(Date defaultAlarmTime) {
+        return System.currentTimeMillis() > defaultAlarmTime.getTime();
     }
 
     private Date createDate(EditText dateText, EditText timeText) throws ParseException {
