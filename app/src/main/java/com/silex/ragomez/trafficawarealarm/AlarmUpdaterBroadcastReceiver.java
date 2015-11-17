@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
     public static final String TAG = "AlarmUpdaterService";
-    private static final long POLLING_INTERVAL = 5 * 1000;
+    private static final long POLLING_INTERVAL = 5 * 60 * 1000;
     private static final long START_OF_POLLING_TIME = 2 * 60 * 60 * 1000;
 
 
