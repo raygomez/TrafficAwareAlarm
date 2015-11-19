@@ -234,17 +234,32 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         DialogFragment newFragment = new DatePickerFragment();
         Bundle args = new Bundle();
         args.putInt("source", view.getId());
-        newFragment.setArguments(args);
-        newFragment.show(getSupportFragmentManager(), "datePicker");
+
+        try {
+            Date defaultAlarmTime = createDate(((EditText) view).getText().toString());
+            args.putLong("date", defaultAlarmTime.getTime());
+        } catch (ParseException e) {
+            args.putLong("date", System.currentTimeMillis());
+        } finally {
+            newFragment.setArguments(args);
+            newFragment.show(getSupportFragmentManager(), "datePicker");
+        }
     }
 
     public void openTimePickerDialog(View view) {
         DialogFragment newFragment = new TimePickerFragment();
         Bundle args = new Bundle();
         args.putInt("source", view.getId());
-        newFragment.setArguments(args);
-        newFragment.show(getSupportFragmentManager(), "timePicker");
 
+        try {
+            Date defaultAlarmTime = createTime(((EditText) view).getText().toString());
+            args.putLong("time", defaultAlarmTime.getTime());
+        } catch (ParseException e) {
+            args.putLong("time", System.currentTimeMillis());
+        } finally {
+            newFragment.setArguments(args);
+            newFragment.show(getSupportFragmentManager(), "timePicker");
+        }
     }
 
     public void repeatingTimer(View view) {
@@ -308,11 +323,19 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         return System.currentTimeMillis() > defaultAlarmTime.getTime();
     }
 
+    private Date createDate(String dateString) throws ParseException {
+        DateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        return format.parse(dateString);
+    }
+
+    private Date createTime(String timeString) throws ParseException {
+        DateFormat format = new SimpleDateFormat("hh : mm a");
+        return format.parse(timeString);
+    }
+
     private Date createDate(EditText dateText, EditText timeText) throws ParseException {
         DateFormat format = new SimpleDateFormat("yyyy/MM/dd hh : mm a");
-        Date date = format.parse(dateText.getText().toString() + ' ' + timeText.getText().toString());
-        Log.i(TAG, "Date: " + date.toString());
-        return date;
+        return format.parse(dateText.getText().toString() + ' ' + timeText.getText().toString());
     }
 
 
