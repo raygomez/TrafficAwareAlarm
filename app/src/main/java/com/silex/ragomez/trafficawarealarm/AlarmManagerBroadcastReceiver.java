@@ -2,6 +2,7 @@ package com.silex.ragomez.trafficawarealarm;
 
 
 import android.app.AlarmManager;
+import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,15 +22,9 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "tag");
-        wl.acquire();
-
         Intent i = new Intent(context, DialogActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
-
-        wl.release();
     }
 
     public void setOnetimeTimer(Context context, long timeOfExpiration) {
