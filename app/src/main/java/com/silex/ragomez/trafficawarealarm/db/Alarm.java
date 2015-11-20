@@ -106,4 +106,9 @@ public class Alarm {
     public void setEta(long eta) {
         this.eta = eta;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
