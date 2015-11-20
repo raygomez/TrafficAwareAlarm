@@ -46,7 +46,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
 
         long startTime = defaultAlarmTime - START_OF_POLLING_TIME;
-        am.setRepeating(AlarmManager.RTC, startTime,
+        am.setRepeating(AlarmManager.RTC_WAKEUP, startTime,
                 POLLING_INTERVAL, sender);
 
         Log.i(TAG, "createRepeatingAlarmTimer startTime:" + new Date(startTime).toString());
