@@ -6,16 +6,16 @@ public class Alarm {
     private String name;
 
     private String origin;
-    private double origin_lat;
-    private double origin_long;
+    private double originLatitude;
+    private double originLongitude;
 
-    private String dest;
-    private double dest_lat;
-    private double dest_long;
+    private String destination;
+    private double destLatitude;
+    private double destLongitude;
 
-    private long prep_time;
+    private long prepTime;
 
-    private long default_alarm;
+    private long defaultAlarm;
 
     private long eta;
 
@@ -43,60 +43,60 @@ public class Alarm {
         this.origin = origin;
     }
 
-    public double getOrigin_lat() {
-        return origin_lat;
+    public double getOriginLatitude() {
+        return originLatitude;
     }
 
-    public void setOrigin_lat(double origin_lat) {
-        this.origin_lat = origin_lat;
+    public void setOriginLatitude(double originLatitude) {
+        this.originLatitude = originLatitude;
     }
 
-    public double getOrigin_long() {
-        return origin_long;
+    public double getOriginLongitude() {
+        return originLongitude;
     }
 
-    public void setOrigin_long(double origin_long) {
-        this.origin_long = origin_long;
+    public void setOriginLongitude(double originLongitude) {
+        this.originLongitude = originLongitude;
     }
 
-    public String getDest() {
-        return dest;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setDest(String dest) {
-        this.dest = dest;
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 
-    public double getDest_lat() {
-        return dest_lat;
+    public double getDestLatitude() {
+        return destLatitude;
     }
 
-    public void setDest_lat(double dest_lat) {
-        this.dest_lat = dest_lat;
+    public void setDestLatitude(double destLatitude) {
+        this.destLatitude = destLatitude;
     }
 
-    public double getDest_long() {
-        return dest_long;
+    public double getDestLongitude() {
+        return destLongitude;
     }
 
-    public void setDest_long(double dest_long) {
-        this.dest_long = dest_long;
+    public void setDestLongitude(double destLongitude) {
+        this.destLongitude = destLongitude;
     }
 
-    public long getPrep_time() {
-        return prep_time;
+    public long getPrepTime() {
+        return prepTime;
     }
 
-    public void setPrep_time(long prep_time) {
-        this.prep_time = prep_time;
+    public void setPrepTime(long prepTime) {
+        this.prepTime = prepTime;
     }
 
-    public long getDefault_alarm() {
-        return default_alarm;
+    public long getDefaultAlarm() {
+        return defaultAlarm;
     }
 
-    public void setDefault_alarm(long default_alarm) {
-        this.default_alarm = default_alarm;
+    public void setDefaultAlarm(long defaultAlarm) {
+        this.defaultAlarm = defaultAlarm;
     }
 
     public long getEta() {
