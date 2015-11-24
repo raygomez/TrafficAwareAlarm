@@ -149,5 +149,13 @@
             android:text="@string/save_alarm"
             android:onClick="saveAlarm"/>
 
+        <Button
+            android:id="@+id/button_delete_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/delete_alarm"
+            android:onClick="deleteAlarm"/>
+
     </LinearLayout>
 </ScrollView>

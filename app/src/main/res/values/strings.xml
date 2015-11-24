@@ -17,6 +17,7 @@
     <string name="default_prep_time">0 hour, 0 minutes</string>
     <string name="add_label">Add New Alarm</string>
     <string name="save_alarm">Save Alarm</string>
+    <string name="delete_alarm">Delete Alarm</string>
 
 
 </resources>

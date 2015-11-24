@@ -64,7 +64,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private EditText target_time;
     private EditText prep;
 
-    private Integer alarmId;
+    private Integer _id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +107,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Bundle b = intent.getExtras();
         if(b != null) {
             if(b.containsKey(DatabaseHandler.KEY_ID)) {
-                int _id = b.getInt(DatabaseHandler.KEY_ID);
+                _id = b.getInt(DatabaseHandler.KEY_ID);
                 String origin = b.getString(DatabaseHandler.KEY_ORIGIN);
                 double originLat = b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT);
                 double originLong = b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG);
@@ -440,12 +440,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         Alarm newAlarm = new Alarm();
 
-        if(alarmId == null) {
-            Log.i("Alarm", "new alarm");
-        } else {
-            Log.i("Alarm", "update alarm");
-        }
-
         newAlarm.setName("New Alarm");
         newAlarm.setOrigin("Here");
         newAlarm.setOriginLatitude(1);
@@ -458,5 +452,15 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newAlarm.setEta(7);
 
         handler.addAlarm(newAlarm);
+        showToast(getApplicationContext(), "Alarm saved");
+        finish();
+    }
+
+    public void deleteAlarm(View view) {
+
+        DatabaseHandler db = DatabaseHandler.getInstance(this);
+        db.deleteAlarmById(_id);
+        showToast(getApplicationContext(), "Alarm deleted");
+        finish();
     }
 }

@@ -13,7 +13,7 @@ import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
 public class ListActivity extends AppCompatActivity {
 
-    private SimpleCursorAdapter dataAdapter;
+    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,17 +28,11 @@ public class ListActivity extends AppCompatActivity {
 
         Cursor cursor = DatabaseHandler.getInstance(this).fetchAllAlarms();
 
-        String[] columns = new String[] {
-                DatabaseHandler.KEY_NAME
-        };
+        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.listview_each_alarm, cursor,
+                new String[]{ DatabaseHandler.KEY_NAME },
+                new int[]{ R.id.alarm_item }, 0);
 
-        int[] to = new int[] {
-                R.id.alarm_item
-        };
-        
-        dataAdapter = new SimpleCursorAdapter(this, R.layout.listview_each_alarm, cursor, columns, to, 0);
-
-        final ListView listView = (ListView) findViewById(R.id.alarm_list_view);
+        listView = (ListView) findViewById(R.id.alarm_list_view);
         listView.setAdapter(dataAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -68,5 +62,18 @@ public class ListActivity extends AppCompatActivity {
     public void loadMainActivity(View view) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Cursor cursor = DatabaseHandler.getInstance(this).fetchAllAlarms();
+
+        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.listview_each_alarm, cursor,
+                new String[]{ DatabaseHandler.KEY_NAME },
+                new int[]{ R.id.alarm_item }, 0);
+
+        listView.setAdapter(dataAdapter);
     }
 }

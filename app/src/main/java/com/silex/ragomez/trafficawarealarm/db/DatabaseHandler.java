@@ -102,7 +102,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         String ALARM_QUERY = String.format("select * from %s", TABLE_ALARMS);
 
-        Log.e("db", ALARM_QUERY);
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(ALARM_QUERY, null);
 
@@ -111,5 +110,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         return cursor;
+    }
+
+    public void deleteAlarmById(int _id) {
+
+        SQLiteDatabase db = getReadableDatabase();
+        db.delete(TABLE_ALARMS, KEY_ID + " = ?", new String[] { String.valueOf(_id)});
     }
 }
