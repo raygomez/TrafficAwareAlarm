@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.android.common.logger.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,21 +19,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "alarmManager.db";
     private static final String TABLE_ALARMS = "alarms";
 
-    private static final String KEY_ID = "id";
-    private static final String KEY_NAME = "name";
+    public static final String KEY_ID = "_id";
+    public static final String KEY_NAME = "name";
 
-    private static final String KEY_ORIGIN = "origin";
-    private static final String KEY_ORIGIN_LAT = "origin_lat";
-    private static final String KEY_ORIGIN_LONG = "origin_long";
+    public static final String KEY_ORIGIN = "origin";
+    public static final String KEY_ORIGIN_LAT = "origin_lat";
+    public static final String KEY_ORIGIN_LONG = "origin_long";
 
-    private static final String KEY_DEST = "destination";
-    private static final String KEY_DEST_LAT = "dest_lat";
-    private static final String KEY_DEST_LONG = "dest_long";
+    public static final String KEY_DEST = "destination";
+    public static final String KEY_DEST_LAT = "dest_lat";
+    public static final String KEY_DEST_LONG = "dest_long";
 
-    private static final String KEY_PREP_TIME = "prep_time";
-    private static final String KEY_DEFAULT_ALARM = "default_alarm";
+    public static final String KEY_PREP_TIME = "prep_time";
+    public static final String KEY_DEFAULT_ALARM = "default_alarm";
 
-    private static final String KEY_ETA = "eta";
+    public static final String KEY_ETA = "eta";
 
     public static synchronized DatabaseHandler getInstance(Context context) {
         if(instance == null) {
@@ -96,38 +98,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.endTransaction();
     }
 
-    public List<Alarm> getAllAlarms() {
+    public Cursor fetchAllAlarms() {
 
-        List<Alarm> alarms = new ArrayList<>();
         String ALARM_QUERY = String.format("select * from %s", TABLE_ALARMS);
 
+        Log.e("db", ALARM_QUERY);
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(ALARM_QUERY, null);
 
-        if(cursor.moveToFirst()) {
-            do {
-
-                Alarm alarm = new Alarm();
-                alarm.setId(cursor.getInt(cursor.getColumnIndex(KEY_ID)));
-
-                alarm.setOrigin(cursor.getString(cursor.getColumnIndex(KEY_ORIGIN)));
-                alarm.setOriginLatitude(cursor.getDouble(cursor.getColumnIndex(KEY_ORIGIN_LAT)));
-                alarm.setOriginLongitude(cursor.getDouble(cursor.getColumnIndex(KEY_ORIGIN_LONG)));
-
-                alarm.setDestination(cursor.getString(cursor.getColumnIndex(KEY_DEST)));
-                alarm.setDestLatitude(cursor.getDouble(cursor.getColumnIndex(KEY_DEST_LAT)));
-                alarm.setDestLongitude(cursor.getDouble(cursor.getColumnIndex(KEY_DEST_LONG)));
-
-                alarm.setPrepTime(cursor.getLong(cursor.getColumnIndex(KEY_PREP_TIME)));
-                alarm.setDefaultAlarm(cursor.getLong(cursor.getColumnIndex(KEY_DEFAULT_ALARM)));
-                alarm.setEta(cursor.getLong(cursor.getColumnIndex(KEY_ETA)));
-
-                alarms.add(alarm);
-
-            } while(cursor.moveToNext());
+        if(cursor != null) {
+            cursor.moveToFirst();
         }
-        cursor.close();
 
-        return alarms;
+        return cursor;
     }
 }

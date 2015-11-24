@@ -2,6 +2,7 @@ package com.silex.ragomez.trafficawarealarm;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -101,6 +102,27 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         prep = (EditText) findViewById(R.id.prep_time);
 
         alarm = new AlarmUpdaterBroadcastReceiver();
+
+        Intent intent = getIntent();
+        Bundle b = intent.getExtras();
+        if(b != null) {
+            if(b.containsKey(DatabaseHandler.KEY_ID)) {
+                int _id = b.getInt(DatabaseHandler.KEY_ID);
+                String origin = b.getString(DatabaseHandler.KEY_ORIGIN);
+                double originLat = b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT);
+                double originLong = b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG);
+                String dest = b.getString(DatabaseHandler.KEY_DEST);
+                double destLat = b.getDouble(DatabaseHandler.KEY_DEST_LAT);
+                double destLong = b.getDouble(DatabaseHandler.KEY_DEST_LONG);
+                long prepTime = b.getLong(DatabaseHandler.KEY_PREP_TIME);
+                long defaultAlarm = b.getLong(DatabaseHandler.KEY_DEFAULT_ALARM);
+                long eta = b.getLong(DatabaseHandler.KEY_ETA);
+
+                originView.setText(origin);
+                destinationView.setText(dest);
+            }
+        }
+
     }
 
     /**
@@ -436,10 +458,5 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newAlarm.setEta(7);
 
         handler.addAlarm(newAlarm);
-
-        List<Alarm> alarms = handler.getAllAlarms();
-        for(Alarm alarm : alarms) {
-            Log.i("Alarm", alarm.getName());
-        }
     }
 }
