@@ -25,11 +25,14 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.silex.ragomez.trafficawarealarm.db.Alarm;
+import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +62,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private EditText target_date;
     private EditText target_time;
     private EditText prep;
+
+    private Integer alarmId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -404,6 +409,37 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             return Integer.parseInt(m.group(2));
         } else {
             return 0;
+        }
+    }
+
+    public void saveAlarm(View view) {
+
+        DatabaseHandler handler = DatabaseHandler.getInstance(this);
+
+        Alarm newAlarm = new Alarm();
+
+        if(alarmId == null) {
+            Log.i("Alarm", "new alarm");
+        } else {
+            Log.i("Alarm", "update alarm");
+        }
+
+        newAlarm.setName("New Alarm");
+        newAlarm.setOrigin("Here");
+        newAlarm.setOriginLatitude(1);
+        newAlarm.setOriginLongitude(2);
+        newAlarm.setDestination("There");
+        newAlarm.setDestLatitude(3);
+        newAlarm.setDestLongitude(4);
+        newAlarm.setPrepTime(5);
+        newAlarm.setDefaultAlarm(6);
+        newAlarm.setEta(7);
+
+        handler.addAlarm(newAlarm);
+
+        List<Alarm> alarms = handler.getAllAlarms();
+        for(Alarm alarm : alarms) {
+            Log.i("Alarm", alarm.getName());
         }
     }
 }

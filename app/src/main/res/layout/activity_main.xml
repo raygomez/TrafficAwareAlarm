@@ -141,5 +141,13 @@
             android:text="@string/cancel_alarm"
             android:onClick="stopTimer"/>
 
+        <Button
+            android:id="@+id/button_save_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/save_alarm"
+            android:onClick="saveAlarm"/>
+
     </LinearLayout>
 </ScrollView>

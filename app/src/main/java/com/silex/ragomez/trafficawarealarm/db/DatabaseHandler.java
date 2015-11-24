@@ -59,7 +59,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_DEST_LONG + " real not null," +
                 KEY_PREP_TIME + " integer not null," +
                 KEY_DEFAULT_ALARM + " integer not null," +
-                KEY_ETA + " integer not null," +
+                KEY_ETA + " integer not null" +
                 ")";
 
         db.execSQL(CREATE_ALARM_TABLE);
