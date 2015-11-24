@@ -33,7 +33,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,6 +120,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 originView.setText(origin);
                 destinationView.setText(dest);
             }
+        } else {
+            Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
+            deleteButton.setVisibility(View.GONE);
         }
 
     }
