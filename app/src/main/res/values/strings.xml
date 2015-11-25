@@ -18,6 +18,7 @@
     <string name="add_label">Add New Alarm</string>
     <string name="save_alarm">Save Alarm</string>
     <string name="delete_alarm">Delete Alarm</string>
+    <string name="alarm_name">Name</string>
 
 
 </resources>

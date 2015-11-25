@@ -46,15 +46,17 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private PlaceAutocompleteAdapter mAdapter;
 
+    private EditText alarmNameView;
     private AutoCompleteTextView originView;
     private AutoCompleteTextView destinationView;
 
     private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
             new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
 
-    private LatLng origin = null;
-    private LatLng destination = null;
+    private LatLng originCoordinates = null;
+    private LatLng destinationCoordinates = null;
 
+    private int prepTimeInSeconds;
     private AlarmUpdaterBroadcastReceiver alarm;
 
     private EditText default_date;
@@ -94,6 +96,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         originView.setAdapter(mAdapter);
         destinationView.setAdapter(mAdapter);
 
+        alarmNameView = (EditText) findViewById(R.id.alarm_name);
         default_date = (EditText) findViewById(R.id.default_date);
         default_time = (EditText) findViewById(R.id.default_time);
         target_date = (EditText) findViewById(R.id.target_date);
@@ -107,18 +110,24 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         if(b != null) {
             if(b.containsKey(DatabaseHandler.KEY_ID)) {
                 _id = b.getInt(DatabaseHandler.KEY_ID);
+                String name = b.getString(DatabaseHandler.KEY_NAME);
                 String origin = b.getString(DatabaseHandler.KEY_ORIGIN);
                 double originLat = b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT);
                 double originLong = b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG);
                 String dest = b.getString(DatabaseHandler.KEY_DEST);
                 double destLat = b.getDouble(DatabaseHandler.KEY_DEST_LAT);
                 double destLong = b.getDouble(DatabaseHandler.KEY_DEST_LONG);
-                long prepTime = b.getLong(DatabaseHandler.KEY_PREP_TIME);
+                prepTimeInSeconds = b.getInt(DatabaseHandler.KEY_PREP_TIME);
                 long defaultAlarm = b.getLong(DatabaseHandler.KEY_DEFAULT_ALARM);
                 long eta = b.getLong(DatabaseHandler.KEY_ETA);
 
+                alarmNameView.setText(name);
                 originView.setText(origin);
                 destinationView.setText(dest);
+
+                originCoordinates = new LatLng(originLat, originLong);
+                destinationCoordinates = new LatLng(destLat, destLong);
+
             }
         } else {
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
@@ -210,7 +219,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             // Get the Place object from the buffer.
             final Place place = places.get(0);
 
-            origin = place.getLatLng();
+            originCoordinates = place.getLatLng();
 
             Log.i(TAG, "Place details received: " + place.getName());
             Log.i(TAG, "Location received: " + place.getLatLng().toString());
@@ -232,7 +241,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             // Get the Place object from the buffer.
             final Place place = places.get(0);
 
-            destination = place.getLatLng();
+            destinationCoordinates = place.getLatLng();
 
             Log.i(TAG, "Place details received: " + place.getName());
             Log.i( TAG, "Location received: " + place.getLatLng().toString());
@@ -294,11 +303,11 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        if(origin == null){
+        if(originCoordinates == null){
             showToast(context, "Please enter an origin.");
             return;
         }
-        if(destination == null){
+        if(destinationCoordinates == null){
             showToast(context, "Please enter a destination.");
             return;
         }
@@ -338,8 +347,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         int hours = getHoursFromInput(input);
         int minutes = getMinutesFromInput(input);
         int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
-        alarm.createRepeatingAlarmTimer(context, origin.latitude, origin.longitude, destination.latitude,
-                destination.longitude, defaultAlarmTime.getTime(),
+        alarm.createRepeatingAlarmTimer(context, originCoordinates.latitude, originCoordinates.longitude, destinationCoordinates.latitude,
+                destinationCoordinates.longitude, defaultAlarmTime.getTime(),
                 targetArrivalTime.getTime(), milliseconds);
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
     }
@@ -380,12 +389,16 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Button setButton = (Button) d.findViewById(R.id.set_button);
         Button cancelButton = (Button) d.findViewById(R.id.cancel_button);
 
+        int prepInHours = prepTimeInSeconds / 3600;
+        int prepInQuarters = (prepTimeInSeconds - prepTimeInSeconds / 3600)/(60 * 4);
+
         final NumberPicker hourPicker = (NumberPicker) d.findViewById(R.id.prep_hours);
         hourPicker.setMaxValue(2);
         hourPicker.setMinValue(0);
 
         final String[] hours = new String[] { "0 hour", "1 hour", "2 hours"};
         hourPicker.setDisplayedValues(hours);
+        hourPicker.setValue(prepInHours);
 
 
         final NumberPicker minPicker = (NumberPicker) d.findViewById(R.id.prep_minutes);
@@ -394,6 +407,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         final String[] minutes = new String[] { "0 minute", "15 minutes", "30 minutes", "45 minutes"};
         minPicker.setDisplayedValues(minutes);
+        minPicker.setValue(prepInQuarters);
 
 
         setButton.setOnClickListener(new View.OnClickListener() {
@@ -401,6 +415,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             public void onClick(View v) {
                 String input = hours[hourPicker.getValue()] + ", " + minutes[minPicker.getValue()];
                 prep.setText(input);
+                prepTimeInSeconds = hourPicker.getValue() * 3600 + minPicker.getValue() * 60 * 15;
                 d.dismiss();
             }
         });
@@ -442,14 +457,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         Alarm newAlarm = new Alarm();
 
-        newAlarm.setName("New Alarm");
-        newAlarm.setOrigin("Here");
-        newAlarm.setOriginLatitude(1);
-        newAlarm.setOriginLongitude(2);
-        newAlarm.setDestination("There");
-        newAlarm.setDestLatitude(3);
-        newAlarm.setDestLongitude(4);
-        newAlarm.setPrepTime(5);
+        newAlarm.setName(alarmNameView.getText().toString());
+        newAlarm.setOrigin(originView.getText().toString());
+        newAlarm.setOriginLatitude(originCoordinates.latitude);
+        newAlarm.setOriginLongitude(originCoordinates.longitude);
+        newAlarm.setDestination(destinationView.getText().toString());
+        newAlarm.setDestLatitude(destinationCoordinates.latitude);
+        newAlarm.setDestLongitude(destinationCoordinates.longitude);
+        newAlarm.setPrepTime(prepTimeInSeconds);
         newAlarm.setDefaultAlarm(6);
         newAlarm.setEta(7);
 
