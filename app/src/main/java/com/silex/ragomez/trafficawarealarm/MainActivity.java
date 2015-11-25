@@ -67,6 +67,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     private Integer _id;
 
+    private final String[] hours = new String[] { "0 hour", "1 hour", "2 hours"};
+    private final String[] minutes = new String[] { "0 minute", "15 minutes", "30 minutes", "45 minutes"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,6 +131,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 originCoordinates = new LatLng(originLat, originLong);
                 destinationCoordinates = new LatLng(destLat, destLong);
 
+                int prepInHours = prepTimeInSeconds / 3600;
+                int prepInQuarters = (prepTimeInSeconds - prepInHours * 3600)/(60 * 15);
+                String input = hours[prepInHours] + ", " + minutes[prepInQuarters];
+                prep.setText(input);
             }
         } else {
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
@@ -390,22 +397,20 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Button cancelButton = (Button) d.findViewById(R.id.cancel_button);
 
         int prepInHours = prepTimeInSeconds / 3600;
-        int prepInQuarters = (prepTimeInSeconds - prepTimeInSeconds / 3600)/(60 * 4);
+        int prepInQuarters = (prepTimeInSeconds - prepInHours * 3600)/(60 * 15);
 
         final NumberPicker hourPicker = (NumberPicker) d.findViewById(R.id.prep_hours);
         hourPicker.setMaxValue(2);
         hourPicker.setMinValue(0);
 
-        final String[] hours = new String[] { "0 hour", "1 hour", "2 hours"};
         hourPicker.setDisplayedValues(hours);
         hourPicker.setValue(prepInHours);
 
 
         final NumberPicker minPicker = (NumberPicker) d.findViewById(R.id.prep_minutes);
-        minPicker.setMaxValue(2);
+        minPicker.setMaxValue(3);
         minPicker.setMinValue(0);
 
-        final String[] minutes = new String[] { "0 minute", "15 minutes", "30 minutes", "45 minutes"};
         minPicker.setDisplayedValues(minutes);
         minPicker.setValue(prepInQuarters);
 
