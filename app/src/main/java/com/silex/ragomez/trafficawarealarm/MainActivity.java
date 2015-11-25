@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
@@ -132,43 +133,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 originCoordinates = new LatLng(originLat, originLong);
                 destinationCoordinates = new LatLng(destLat, destLong);
 
-                int prepInHours = prepTimeInSeconds / 3600;
-                int prepInQuarters = (prepTimeInSeconds - prepInHours * 3600)/(60 * 15);
-                String input = hours[prepInHours] + ", " + minutes[prepInQuarters];
-                prep.setText(input);
+                setPrepTime();
+                setDefaultAlarm(defaultAlarm);
+                setETA(eta);
 
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(defaultAlarm);
-                default_date.setText(cal.get(Calendar.YEAR) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.DAY_OF_MONTH) );
-
-                String am_pm;
-                int hour;
-                int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
-                int minute = cal.get(Calendar.MINUTE);
-
-                if(hourOfDay >= 12) {
-                    hour = hourOfDay != 12 ? hourOfDay - 12 : 12;
-                    am_pm = "PM";
-                } else {
-                    hour = hourOfDay != 0 ? hourOfDay : 12;
-                    am_pm = "AM";
-                }
-                default_time.setText(String.format("%02d", hour) + " : " + String.format("%02d", minute) + " " + am_pm);
-
-                cal.setTimeInMillis(eta);
-                target_date.setText(cal.get(Calendar.YEAR) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.DAY_OF_MONTH));
-
-                hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
-                minute = cal.get(Calendar.MINUTE);
-
-                if(hourOfDay >= 12) {
-                    hour = hourOfDay != 12 ? hourOfDay - 12 : 12;
-                    am_pm = "PM";
-                } else {
-                    hour = hourOfDay != 0 ? hourOfDay : 12;
-                    am_pm = "AM";
-                }
-                target_time.setText(String.format("%02d", hour) + " : " + String.format("%02d", minute) + " " + am_pm);
                 Button saveButton = (Button) findViewById(R.id.button_save_alarm);
                 saveButton.setText("Update Alarm");
 
@@ -177,7 +145,55 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
             deleteButton.setVisibility(View.GONE);
         }
+    }
 
+    private void setETA(long eta) {
+        int hourOfDay;
+        int minute;
+        int hour;
+        String am_pm;
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(eta);
+        target_date.setText(cal.get(Calendar.YEAR) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.DAY_OF_MONTH));
+
+        hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
+        minute = cal.get(Calendar.MINUTE);
+
+        if(hourOfDay >= 12) {
+            hour = hourOfDay != 12 ? hourOfDay - 12 : 12;
+            am_pm = "PM";
+        } else {
+            hour = hourOfDay != 0 ? hourOfDay : 12;
+            am_pm = "AM";
+        }
+        target_time.setText(String.format("%02d", hour) + " : " + String.format("%02d", minute) + " " + am_pm);
+    }
+
+    private void setDefaultAlarm(long defaultAlarm) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(defaultAlarm);
+        default_date.setText(cal.get(Calendar.YEAR) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.DAY_OF_MONTH) );
+
+        String am_pm;
+        int hour;
+        int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+
+        if(hourOfDay >= 12) {
+            hour = hourOfDay != 12 ? hourOfDay - 12 : 12;
+            am_pm = "PM";
+        } else {
+            hour = hourOfDay != 0 ? hourOfDay : 12;
+            am_pm = "AM";
+        }
+        default_time.setText(String.format("%02d", hour) + " : " + String.format("%02d", minute) + " " + am_pm);
+    }
+
+    private void setPrepTime() {
+        int prepInHours = prepTimeInSeconds / 3600;
+        int prepInQuarters = (prepTimeInSeconds - prepInHours * 3600)/(60 * 15);
+        String input = hours[prepInHours] + ", " + minutes[prepInQuarters];
+        prep.setText(input);
     }
 
     /**
