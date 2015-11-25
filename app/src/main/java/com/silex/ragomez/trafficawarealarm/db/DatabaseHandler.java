@@ -5,11 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import com.example.android.common.logger.Log;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.support.annotation.NonNull;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -77,9 +73,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void addAlarm(Alarm alarm) {
 
         SQLiteDatabase db = getWritableDatabase();
-
         db.beginTransaction();
 
+        ContentValues values = getContentValues(alarm);
+        db.insertOrThrow(TABLE_ALARMS, null, values);
+        db.setTransactionSuccessful();
+        db.endTransaction();
+    }
+
+    @NonNull
+    private ContentValues getContentValues(Alarm alarm) {
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, alarm.getName());
         values.put(KEY_ORIGIN, alarm.getOrigin());
@@ -91,11 +94,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PREP_TIME, alarm.getPrepTime());
         values.put(KEY_DEFAULT_ALARM, alarm.getDefaultAlarm());
         values.put(KEY_ETA, alarm.getEta());
-
-
-        db.insertOrThrow(TABLE_ALARMS, null, values);
-        db.setTransactionSuccessful();
-        db.endTransaction();
+        return values;
     }
 
     public Cursor fetchAllAlarms() {
@@ -116,5 +115,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getReadableDatabase();
         db.delete(TABLE_ALARMS, KEY_ID + " = ?", new String[] { String.valueOf(_id)});
+    }
+
+    public void updateAlarm(Alarm alarm) {
+
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = getContentValues(alarm);
+        db.update(TABLE_ALARMS, values, KEY_ID + " = ?", new String[]{String.valueOf(alarm.getId())});
     }
 }

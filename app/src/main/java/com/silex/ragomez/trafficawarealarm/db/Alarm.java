@@ -2,7 +2,7 @@ package com.silex.ragomez.trafficawarealarm.db;
 
 public class Alarm {
 
-    private int id;
+    private Integer id;
     private String name;
 
     private String origin;
@@ -19,7 +19,7 @@ public class Alarm {
 
     private long eta;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
