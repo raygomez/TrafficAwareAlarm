@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
@@ -58,8 +57,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private LatLng originCoordinates = null;
     private LatLng destinationCoordinates = null;
 
-    private int prepTimeInSeconds;
-    private AlarmUpdaterBroadcastReceiver alarm;
+    private AlarmUpdaterBroadcastReceiver alarmBroadcastReceiver;
 
     private EditText default_date;
     private EditText default_time;
@@ -67,7 +65,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private EditText target_time;
     private EditText prep;
 
-    private Integer _id;
+    private Alarm alarm;
 
     private final String[] hours = new String[] { "0 hour", "1 hour", "2 hours"};
     private final String[] minutes = new String[] { "0 minute", "15 minutes", "30 minutes", "45 minutes"};
@@ -108,38 +106,24 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_time = (EditText) findViewById(R.id.target_time);
         prep = (EditText) findViewById(R.id.prep_time);
 
-        alarm = new AlarmUpdaterBroadcastReceiver();
+        alarmBroadcastReceiver = new AlarmUpdaterBroadcastReceiver();
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
         if(b != null) {
             if(b.containsKey(DatabaseHandler.KEY_ID)) {
-                _id = b.getInt(DatabaseHandler.KEY_ID);
-                String name = b.getString(DatabaseHandler.KEY_NAME);
-                String origin = b.getString(DatabaseHandler.KEY_ORIGIN);
-                double originLat = b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT);
-                double originLong = b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG);
-                String dest = b.getString(DatabaseHandler.KEY_DEST);
-                double destLat = b.getDouble(DatabaseHandler.KEY_DEST_LAT);
-                double destLong = b.getDouble(DatabaseHandler.KEY_DEST_LONG);
-                prepTimeInSeconds = b.getInt(DatabaseHandler.KEY_PREP_TIME);
-                long defaultAlarm = b.getLong(DatabaseHandler.KEY_DEFAULT_ALARM);
-                long eta = b.getLong(DatabaseHandler.KEY_ETA);
+                alarm = new Alarm(b);
 
-                alarmNameView.setText(name);
-                originView.setText(origin);
-                destinationView.setText(dest);
+                alarmNameView.setText(alarm.getName());
+                originView.setText(alarm.getOrigin());
+                destinationView.setText(alarm.getDestination());
 
-                originCoordinates = new LatLng(originLat, originLong);
-                destinationCoordinates = new LatLng(destLat, destLong);
+                originCoordinates = new LatLng(alarm.getOriginLatitude(), alarm.getOriginLongitude());
+                destinationCoordinates = new LatLng(alarm.getDestLatitude(), alarm.getDestLongitude());
 
                 setPrepTime();
-                setDefaultAlarm(defaultAlarm);
-                setETA(eta);
-
-                Button saveButton = (Button) findViewById(R.id.button_save_alarm);
-                saveButton.setText("Update Alarm");
-
+                setDefaultAlarm(alarm.getDefaultAlarm());
+                setETA(alarm.getEta());
             }
         } else {
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
@@ -190,8 +174,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     }
 
     private void setPrepTime() {
-        int prepInHours = prepTimeInSeconds / 3600;
-        int prepInQuarters = (prepTimeInSeconds - prepInHours * 3600)/(60 * 15);
+        int prepInHours = alarm.getPrepTime() / 3600;
+        int prepInQuarters = (alarm.getPrepTime() - prepInHours * 3600)/(60 * 15);
         String input = hours[prepInHours] + ", " + minutes[prepInQuarters];
         prep.setText(input);
     }
@@ -403,11 +387,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             return;
         }
 
+        saveAlarm(view);
         String input = prep.getText().toString();
         int hours = getHoursFromInput(input);
         int minutes = getMinutesFromInput(input);
         int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
-        alarm.createRepeatingAlarmTimer(context, originCoordinates.latitude, originCoordinates.longitude, destinationCoordinates.latitude,
+        alarmBroadcastReceiver.createRepeatingAlarmTimer(context, originCoordinates.latitude, originCoordinates.longitude, destinationCoordinates.latitude,
                 destinationCoordinates.longitude, defaultAlarmTime.getTime(),
                 targetArrivalTime.getTime(), milliseconds);
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
@@ -439,7 +424,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void stopTimer(View view) {
         Context context = getApplicationContext();
-        alarm.cancel(context);
+        alarmBroadcastReceiver.cancel(context);
         Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
     }
 
@@ -449,8 +434,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Button setButton = (Button) d.findViewById(R.id.set_button);
         Button cancelButton = (Button) d.findViewById(R.id.cancel_button);
 
-        int prepInHours = prepTimeInSeconds / 3600;
-        int prepInQuarters = (prepTimeInSeconds - prepInHours * 3600)/(60 * 15);
+        int prepInHours = alarm.getPrepTime() / 3600;
+        int prepInQuarters = (alarm.getPrepTime() - prepInHours * 3600)/(60 * 15);
 
         final NumberPicker hourPicker = (NumberPicker) d.findViewById(R.id.prep_hours);
         hourPicker.setMaxValue(2);
@@ -473,7 +458,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             public void onClick(View v) {
                 String input = hours[hourPicker.getValue()] + ", " + minutes[minPicker.getValue()];
                 prep.setText(input);
-                prepTimeInSeconds = hourPicker.getValue() * 3600 + minPicker.getValue() * 60 * 15;
+                alarm.setPrepTime(hourPicker.getValue() * 3600 + minPicker.getValue() * 60 * 15);
                 d.dismiss();
             }
         });
@@ -515,7 +500,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         Alarm newAlarm = new Alarm();
 
-        newAlarm.setId(_id);
+        newAlarm.setId(alarm.getId());
         newAlarm.setName(alarmNameView.getText().toString());
         newAlarm.setOrigin(originView.getText().toString());
         newAlarm.setOriginLatitude(originCoordinates.latitude);
@@ -523,7 +508,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newAlarm.setDestination(destinationView.getText().toString());
         newAlarm.setDestLatitude(destinationCoordinates.latitude);
         newAlarm.setDestLongitude(destinationCoordinates.longitude);
-        newAlarm.setPrepTime(prepTimeInSeconds);
+        newAlarm.setPrepTime(alarm.getPrepTime());
 
         Context context = getApplicationContext();
         Date defaultAlarmTime, targetArrivalTime;
@@ -547,18 +532,15 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         if (newAlarm.getId() != null) {
             handler.updateAlarm(newAlarm);
-            showToast(getApplicationContext(), "Alarm updated");
         } else {
             handler.addAlarm(newAlarm);
-            showToast(getApplicationContext(), "Alarm saved");
         }
-        finish();
     }
 
     public void deleteAlarm(View view) {
 
         DatabaseHandler db = DatabaseHandler.getInstance(this);
-        db.deleteAlarmById(_id);
+        db.deleteAlarmById(alarm.getId());
         showToast(getApplicationContext(), "Alarm deleted");
         finish();
     }

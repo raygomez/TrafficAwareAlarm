@@ -1,5 +1,7 @@
 package com.silex.ragomez.trafficawarealarm.db;
 
+import android.os.Bundle;
+
 public class Alarm {
 
     private Integer id;
@@ -13,11 +15,28 @@ public class Alarm {
     private double destLatitude;
     private double destLongitude;
 
-    private long prepTime;
+    private int prepTime;
 
     private long defaultAlarm;
 
     private long eta;
+
+    public Alarm(){}
+
+    public Alarm(Bundle b) {
+        id = b.getInt(DatabaseHandler.KEY_ID);
+        name = b.getString(DatabaseHandler.KEY_NAME);
+        origin = b.getString(DatabaseHandler.KEY_ORIGIN);
+        originLatitude = b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT);
+        originLongitude = b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG);
+        destination = b.getString(DatabaseHandler.KEY_DEST);
+        destLatitude = b.getDouble(DatabaseHandler.KEY_DEST_LAT);
+        destLongitude = b.getDouble(DatabaseHandler.KEY_DEST_LONG);
+        prepTime = b.getInt(DatabaseHandler.KEY_PREP_TIME);
+        defaultAlarm = b.getLong(DatabaseHandler.KEY_DEFAULT_ALARM);
+        eta = b.getLong(DatabaseHandler.KEY_ETA);
+
+    }
 
     public Integer getId() {
         return id;
@@ -83,11 +102,11 @@ public class Alarm {
         this.destLongitude = destLongitude;
     }
 
-    public long getPrepTime() {
+    public int getPrepTime() {
         return prepTime;
     }
 
-    public void setPrepTime(long prepTime) {
+    public void setPrepTime(int prepTime) {
         this.prepTime = prepTime;
     }
 
