@@ -54,9 +54,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     private static final LatLngBounds BOUNDS_METRO_MANILA = new LatLngBounds(
             new LatLng(14.446976, 120.954027), new LatLng(14.763922, 121.062517));
 
-    private LatLng originCoordinates = null;
-    private LatLng destinationCoordinates = null;
-
     private AlarmUpdaterBroadcastReceiver alarmBroadcastReceiver;
 
     private EditText default_date;
@@ -118,14 +115,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 originView.setText(alarm.getOrigin());
                 destinationView.setText(alarm.getDestination());
 
-                originCoordinates = new LatLng(alarm.getOriginLatitude(), alarm.getOriginLongitude());
-                destinationCoordinates = new LatLng(alarm.getDestLatitude(), alarm.getDestLongitude());
-
                 setPrepTime();
                 setDefaultAlarm(alarm.getDefaultAlarm());
                 setETA(alarm.getEta());
             }
         } else {
+            alarm = new Alarm();
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
             deleteButton.setVisibility(View.GONE);
         }
@@ -263,8 +258,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             // Get the Place object from the buffer.
             final Place place = places.get(0);
 
-            originCoordinates = place.getLatLng();
-
+            alarm.setOriginCoordinates(place.getLatLng());
             Log.i(TAG, "Place details received: " + place.getName());
             Log.i(TAG, "Location received: " + place.getLatLng().toString());
 
@@ -285,7 +279,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             // Get the Place object from the buffer.
             final Place place = places.get(0);
 
-            destinationCoordinates = place.getLatLng();
+            alarm.setDestCoordinates(place.getLatLng());
 
             Log.i(TAG, "Place details received: " + place.getName());
             Log.i( TAG, "Location received: " + place.getLatLng().toString());
@@ -347,11 +341,11 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        if(originCoordinates == null){
+        if(alarm.getOriginCoordinates() == null){
             showToast(context, "Please enter an origin.");
             return;
         }
-        if(destinationCoordinates == null){
+        if(alarm.getDestCoordinates() == null){
             showToast(context, "Please enter a destination.");
             return;
         }
@@ -392,9 +386,15 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         int hours = getHoursFromInput(input);
         int minutes = getMinutesFromInput(input);
         int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
-        alarmBroadcastReceiver.createRepeatingAlarmTimer(context, originCoordinates.latitude, originCoordinates.longitude, destinationCoordinates.latitude,
-                destinationCoordinates.longitude, defaultAlarmTime.getTime(),
-                targetArrivalTime.getTime(), milliseconds);
+        alarmBroadcastReceiver.createRepeatingAlarmTimer(context,
+                alarm.getOriginCoordinates().latitude,
+                alarm.getOriginCoordinates().longitude,
+                alarm.getDestCoordinates().latitude,
+                alarm.getDestCoordinates().longitude,
+                defaultAlarmTime.getTime(),
+                targetArrivalTime.getTime(),
+                milliseconds);
+
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
     }
 
@@ -503,11 +503,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         newAlarm.setId(alarm.getId());
         newAlarm.setName(alarmNameView.getText().toString());
         newAlarm.setOrigin(originView.getText().toString());
-        newAlarm.setOriginLatitude(originCoordinates.latitude);
-        newAlarm.setOriginLongitude(originCoordinates.longitude);
+        newAlarm.setOriginCoordinates(alarm.getOriginCoordinates());
         newAlarm.setDestination(destinationView.getText().toString());
-        newAlarm.setDestLatitude(destinationCoordinates.latitude);
-        newAlarm.setDestLongitude(destinationCoordinates.longitude);
+        newAlarm.setDestCoordinates(alarm.getDestCoordinates());
         newAlarm.setPrepTime(alarm.getPrepTime());
 
         Context context = getApplicationContext();

@@ -2,18 +2,18 @@ package com.silex.ragomez.trafficawarealarm.db;
 
 import android.os.Bundle;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class Alarm {
 
     private Integer id;
     private String name;
 
     private String origin;
-    private double originLatitude;
-    private double originLongitude;
+    private LatLng originCoordinates;
 
     private String destination;
-    private double destLatitude;
-    private double destLongitude;
+    private LatLng destCoordinates;
 
     private int prepTime;
 
@@ -27,11 +27,11 @@ public class Alarm {
         id = b.getInt(DatabaseHandler.KEY_ID);
         name = b.getString(DatabaseHandler.KEY_NAME);
         origin = b.getString(DatabaseHandler.KEY_ORIGIN);
-        originLatitude = b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT);
-        originLongitude = b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG);
+        originCoordinates = new LatLng(b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT),
+                b.getDouble(DatabaseHandler.KEY_ORIGIN_LONG));
         destination = b.getString(DatabaseHandler.KEY_DEST);
-        destLatitude = b.getDouble(DatabaseHandler.KEY_DEST_LAT);
-        destLongitude = b.getDouble(DatabaseHandler.KEY_DEST_LONG);
+        destCoordinates = new LatLng(b.getDouble(DatabaseHandler.KEY_DEST_LAT),
+                b.getDouble(DatabaseHandler.KEY_DEST_LONG));
         prepTime = b.getInt(DatabaseHandler.KEY_PREP_TIME);
         defaultAlarm = b.getLong(DatabaseHandler.KEY_DEFAULT_ALARM);
         eta = b.getLong(DatabaseHandler.KEY_ETA);
@@ -42,7 +42,7 @@ public class Alarm {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -62,44 +62,12 @@ public class Alarm {
         this.origin = origin;
     }
 
-    public double getOriginLatitude() {
-        return originLatitude;
-    }
-
-    public void setOriginLatitude(double originLatitude) {
-        this.originLatitude = originLatitude;
-    }
-
-    public double getOriginLongitude() {
-        return originLongitude;
-    }
-
-    public void setOriginLongitude(double originLongitude) {
-        this.originLongitude = originLongitude;
-    }
-
     public String getDestination() {
         return destination;
     }
 
     public void setDestination(String destination) {
         this.destination = destination;
-    }
-
-    public double getDestLatitude() {
-        return destLatitude;
-    }
-
-    public void setDestLatitude(double destLatitude) {
-        this.destLatitude = destLatitude;
-    }
-
-    public double getDestLongitude() {
-        return destLongitude;
-    }
-
-    public void setDestLongitude(double destLongitude) {
-        this.destLongitude = destLongitude;
     }
 
     public int getPrepTime() {
@@ -129,5 +97,21 @@ public class Alarm {
     @Override
     public String toString() {
         return name;
+    }
+
+    public LatLng getOriginCoordinates() {
+        return originCoordinates;
+    }
+
+    public void setOriginCoordinates(LatLng originCoordinates) {
+        this.originCoordinates = originCoordinates;
+    }
+
+    public LatLng getDestCoordinates() {
+        return destCoordinates;
+    }
+
+    public void setDestCoordinates(LatLng destCoordinates) {
+        this.destCoordinates = destCoordinates;
     }
 }

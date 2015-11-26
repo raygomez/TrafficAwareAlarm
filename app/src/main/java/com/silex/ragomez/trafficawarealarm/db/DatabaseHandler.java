@@ -86,11 +86,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, alarm.getName());
         values.put(KEY_ORIGIN, alarm.getOrigin());
-        values.put(KEY_ORIGIN_LAT, alarm.getOriginLatitude());
-        values.put(KEY_ORIGIN_LONG, alarm.getOriginLongitude());
+        values.put(KEY_ORIGIN_LAT, alarm.getOriginCoordinates().latitude);
+        values.put(KEY_ORIGIN_LONG, alarm.getOriginCoordinates().longitude);
         values.put(KEY_DEST, alarm.getDestination());
-        values.put(KEY_DEST_LAT, alarm.getDestLatitude());
-        values.put(KEY_DEST_LONG, alarm.getDestLongitude());
+        values.put(KEY_DEST_LAT, alarm.getDestCoordinates().latitude);
+        values.put(KEY_DEST_LONG, alarm.getDestCoordinates().longitude);
         values.put(KEY_PREP_TIME, alarm.getPrepTime());
         values.put(KEY_DEFAULT_ALARM, alarm.getDefaultAlarm());
         values.put(KEY_ETA, alarm.getEta());
