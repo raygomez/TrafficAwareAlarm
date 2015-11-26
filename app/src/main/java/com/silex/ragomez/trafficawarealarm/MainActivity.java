@@ -395,7 +395,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 targetArrivalTime.getTime(),
                 milliseconds);
 
+        Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
+        deleteButton.setVisibility(View.VISIBLE);
+
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
+
+
     }
 
     private void showToast(Context context, String message) {
@@ -531,7 +536,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         if (newAlarm.getId() != null) {
             handler.updateAlarm(newAlarm);
         } else {
-            handler.addAlarm(newAlarm);
+            alarm.setId(handler.addAlarm(newAlarm));
         }
     }
 

@@ -6,7 +6,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Alarm {
 
-    private Integer id;
+    private Long id;
     private String name;
 
     private String origin;
@@ -24,7 +24,7 @@ public class Alarm {
     public Alarm(){}
 
     public Alarm(Bundle b) {
-        id = b.getInt(DatabaseHandler.KEY_ID);
+        id = b.getLong(DatabaseHandler.KEY_ID);
         name = b.getString(DatabaseHandler.KEY_NAME);
         origin = b.getString(DatabaseHandler.KEY_ORIGIN);
         originCoordinates = new LatLng(b.getDouble(DatabaseHandler.KEY_ORIGIN_LAT),
@@ -38,11 +38,11 @@ public class Alarm {
 
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

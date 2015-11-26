@@ -70,15 +70,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addAlarm(Alarm alarm) {
+    public long addAlarm(Alarm alarm) {
 
         SQLiteDatabase db = getWritableDatabase();
-        db.beginTransaction();
-
         ContentValues values = getContentValues(alarm);
-        db.insertOrThrow(TABLE_ALARMS, null, values);
-        db.setTransactionSuccessful();
-        db.endTransaction();
+        return db.insertOrThrow(TABLE_ALARMS, null, values);
     }
 
     @NonNull
@@ -111,9 +107,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void deleteAlarmById(int _id) {
+    public void deleteAlarmById(long _id) {
 
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_ALARMS, KEY_ID + " = ?", new String[] { String.valueOf(_id)});
     }
 
