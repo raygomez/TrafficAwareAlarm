@@ -43,7 +43,7 @@ public class ListActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
-                intent.putExtra(DatabaseHandler.KEY_ID, cursor.getInt(cursor.getColumnIndex(DatabaseHandler.KEY_ID)));
+                intent.putExtra(DatabaseHandler.KEY_ID, cursor.getLong(cursor.getColumnIndex(DatabaseHandler.KEY_ID)));
                 intent.putExtra(DatabaseHandler.KEY_NAME, cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_NAME)));
                 intent.putExtra(DatabaseHandler.KEY_ORIGIN, cursor.getString(cursor.getColumnIndex(DatabaseHandler.KEY_ORIGIN)));
                 intent.putExtra(DatabaseHandler.KEY_ORIGIN_LAT, cursor.getDouble(cursor.getColumnIndex(DatabaseHandler.KEY_ORIGIN_LAT)));

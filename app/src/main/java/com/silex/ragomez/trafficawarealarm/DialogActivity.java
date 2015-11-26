@@ -72,7 +72,6 @@ public class DialogActivity extends SampleActivityBase {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alarmUpdaterIntent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
         PendingIntent alarmUpdaterPendingIntent = PendingIntent.getBroadcast(context, 0, alarmUpdaterIntent, 0);
-        ;
         am.cancel(alarmUpdaterPendingIntent);
         Log.i(TAG, "cancelled alarmUpdaterPendingIntent");
 
