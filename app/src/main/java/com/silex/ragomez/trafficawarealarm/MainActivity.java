@@ -348,8 +348,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         deleteButton.setVisibility(View.VISIBLE);
 
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
-
-
+        finish();
     }
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
