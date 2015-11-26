@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.example.android.common.logger.Log;
-import com.google.android.gms.maps.model.LatLng;
+import com.silex.ragomez.trafficawarealarm.db.Alarm;
 
 import org.json.JSONObject;
 
@@ -27,57 +27,41 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
     private static final long POLLING_INTERVAL = 5 * 60 * 1000;
     private static final long START_OF_POLLING_TIME = 2 * 60 * 60 * 1000;
 
-
-    public void createRepeatingAlarmTimer(Context context, Double originLatitude, Double originLongitude,
-                                          Double destinationLatitude, Double destinationLongitude,
-                                          long defaultAlarmTime, long targetAlarmTime, long prepTime) {
+    public void createRepeatingAlarmTimer(Context context, Alarm alarm) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
 
-        intent.putExtra("originLatitude",originLatitude);
-        intent.putExtra("originLongitude", originLongitude);
-        intent.putExtra("destinationLatitude", destinationLatitude);
-        intent.putExtra("destinationLongitude", destinationLongitude);
-        intent.putExtra("targetAlarmDate", targetAlarmTime);
-        intent.putExtra("defaultDate", defaultAlarmTime);
-        intent.putExtra("prepTime", prepTime);
+        intent.putExtra("id", alarm.getId().intValue());
+        intent.putExtra("originLatitude",alarm.getOriginCoordinates().latitude);
+        intent.putExtra("originLongitude", alarm.getOriginCoordinates().longitude);
+        intent.putExtra("destinationLatitude", alarm.getDestCoordinates().latitude);
+        intent.putExtra("destinationLongitude", alarm.getDestCoordinates().longitude);
+        intent.putExtra("targetAlarmDate", alarm.getEta());
+        intent.putExtra("defaultDate", alarm.getDefaultAlarm());
+        intent.putExtra("prepTime", alarm.getPrepTime());
 
-        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        int alarmId = alarm.getId().intValue();
 
+        PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        long startTime = defaultAlarmTime - START_OF_POLLING_TIME;
+        long startTime = alarm.getDefaultAlarm() - START_OF_POLLING_TIME;
         am.setRepeating(AlarmManager.RTC_WAKEUP, startTime,
                 POLLING_INTERVAL, sender);
 
         Log.i(TAG, "createRepeatingAlarmTimer startTime:" + new Date(startTime).toString());
         Log.i(TAG, "createRepeatingAlarmTimer interval:" + (POLLING_INTERVAL) + " seconds");
-
-        Log.i(TAG, "originLatitude" + originLatitude);
-        Log.i(TAG, "originLongitude" + originLongitude);
-        Log.i(TAG, "destinationLatitude" + destinationLatitude);
-        Log.i(TAG, "destinationLongitude" + destinationLongitude);
-        Log.i(TAG, "targetAlarmDate" + new Date(targetAlarmTime).toString());
-        Log.i(TAG, "defaultDate" + new Date(defaultAlarmTime).toString());
-        Log.i(TAG, "prepTime" + prepTime);
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        int alarmId = intent.getIntExtra("id", 0);
         Double originLatitude = intent.getDoubleExtra("originLatitude", 0D);
         Double originLongitude = intent.getDoubleExtra("originLongitude", 0D);
         Double destinationLatitude = intent.getDoubleExtra("destinationLatitude", 0D);
         Double destinationLongitude = intent.getDoubleExtra("destinationLongitude", 0D);
         Long targetAlarmDate = intent.getLongExtra("targetAlarmDate", 0L);
         Long defaultDate = intent.getLongExtra("defaultDate", 0L);
-        Long prepTime = intent.getLongExtra("prepTime", 0L);
-
-        Log.i(TAG, "a:originLatitude" + originLatitude);
-        Log.i(TAG, "a:originLongitude" + originLongitude);
-        Log.i(TAG, "a:destinationLatitude" + destinationLatitude);
-        Log.i(TAG, "a:destinationLongitude" + destinationLongitude);
-        Log.i(TAG, "a:targetAlarmDate" + new Date(targetAlarmDate).toString());
-        Log.i(TAG, "a:defaultDate" + new Date(defaultDate).toString());
-        Log.i(TAG, "a:prepTime" + prepTime);
+        int prepTime = intent.getIntExtra("prepTime", 0);
 
         int tripDuration = 0;
         try {
@@ -92,16 +76,16 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, String.format("onReceive: http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s", destinationLatitude, destinationLongitude, originLatitude, originLongitude));
         Log.i(TAG, "" + defaultDate);
         long newComputedTime = computeEstimatedWakeUpTime(tripDuration, targetAlarmDate - prepTime, defaultDate, context);
-        updateAlarmTime(context, newComputedTime, defaultDate);
+        updateAlarmTime(context, alarmId, newComputedTime, defaultDate);
     }
 
-    private void updateAlarmTime(Context context, long newComputedTime, long defaultAlarmTime){
+    private void updateAlarmTime(Context context, int alarmId, long newComputedTime, long defaultAlarmTime){
 
         //if newComputedTime is less than the polling interval before default alarm time
         //  setOneTimeTimer to the default alarmtime
         if(newComputedTime < ( defaultAlarmTime - POLLING_INTERVAL )){
             setOneTimeTimer(context, newComputedTime);
-            cancel(context);
+            cancel(context, alarmId);
             return;
         }
 
@@ -109,7 +93,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         // setOneTimeTimer to the newComputedTime
         if(defaultAlarmTime < (System.currentTimeMillis() + POLLING_INTERVAL)){
             setOneTimeTimer(context, defaultAlarmTime);
-            cancel(context);
+            cancel(context, alarmId);
         }
     }
 
@@ -136,15 +120,13 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         return newComputedAlarm;
     }
 
-    public void cancel(Context context) {
+    public void cancel(Context context, int alarmId) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
-        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
+        PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         am.cancel(sender);
 
         Log.i(TAG, "timer cancelled");
-
     }
 
     private class PollServerTask extends AsyncTask<Double, Integer, Integer>{

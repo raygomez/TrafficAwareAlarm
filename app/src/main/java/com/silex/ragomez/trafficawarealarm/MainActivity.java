@@ -341,59 +341,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        if(alarm.getOriginCoordinates() == null){
-            showToast(context, "Please enter an origin.");
-            return;
-        }
-        if(alarm.getDestCoordinates() == null){
-            showToast(context, "Please enter a destination.");
-            return;
-        }
-
-        Date defaultAlarmTime, targetArrivalTime;
-        try{
-            defaultAlarmTime = createDate(default_date, default_time);
-        }
-        catch (ParseException e){
-            showToast(context, "Please enter an alarm time.");
-            return;
-        }
-
-        try{
-            targetArrivalTime = createDate(target_date, target_time);
-        }
-        catch(ParseException e){
-            showToast(context, "Please enter a target arrival time.");
-            return;
-        }
-
-
-        if(timeHasElapsed(defaultAlarmTime)){
-            showToast(context, "Given alarm time has passed. Please input a later alarm time.");
-            return;
-        }
-        if(timeHasElapsed(targetArrivalTime)){
-            showToast(context, "Given arrival time has passed. Please input a later arrival time.");
-            return;
-        }
-        if(defaultAlarmTime.getTime() > targetArrivalTime.getTime()){
-            showToast(context, "Target arrival time must be later than alarm time. Please input an alarm time earlier than your target arrival time.");
-            return;
-        }
-
         saveAlarm(view);
-        String input = prep.getText().toString();
-        int hours = getHoursFromInput(input);
-        int minutes = getMinutesFromInput(input);
-        int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
-        alarmBroadcastReceiver.createRepeatingAlarmTimer(context,
-                alarm.getOriginCoordinates().latitude,
-                alarm.getOriginCoordinates().longitude,
-                alarm.getDestCoordinates().latitude,
-                alarm.getDestCoordinates().longitude,
-                defaultAlarmTime.getTime(),
-                targetArrivalTime.getTime(),
-                milliseconds);
+        alarmBroadcastReceiver.createRepeatingAlarmTimer(context, alarm);
 
         Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
         deleteButton.setVisibility(View.VISIBLE);
@@ -402,7 +351,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
 
     }
-
+    private void showToast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
     private void showToast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
@@ -429,7 +380,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void stopTimer(View view) {
         Context context = getApplicationContext();
-        alarmBroadcastReceiver.cancel(context);
+        alarmBroadcastReceiver.cancel(context, alarm.getId().intValue());
         Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
     }
 
@@ -501,17 +452,34 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void saveAlarm(View view) {
 
+
         DatabaseHandler handler = DatabaseHandler.getInstance(this);
 
         Alarm newAlarm = new Alarm();
 
         newAlarm.setId(alarm.getId());
         newAlarm.setName(alarmNameView.getText().toString());
+
+        if(alarm.getOriginCoordinates() == null){
+            showToast("Please enter an origin.");
+            return;
+        }
         newAlarm.setOrigin(originView.getText().toString());
         newAlarm.setOriginCoordinates(alarm.getOriginCoordinates());
+
+        if(alarm.getDestCoordinates() == null){
+            showToast("Please enter a destination.");
+            return;
+        }
         newAlarm.setDestination(destinationView.getText().toString());
         newAlarm.setDestCoordinates(alarm.getDestCoordinates());
-        newAlarm.setPrepTime(alarm.getPrepTime());
+
+        String input = prep.getText().toString();
+        int hours = getHoursFromInput(input);
+        int minutes = getMinutesFromInput(input);
+        int milliseconds = 1000 * (hours * 60 * 60 + minutes * 60);
+
+        newAlarm.setPrepTime(milliseconds);
 
         Context context = getApplicationContext();
         Date defaultAlarmTime, targetArrivalTime;
@@ -530,12 +498,28 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             showToast(context, "Please enter a target arrival time.");
             return;
         }
+
+        if(timeHasElapsed(defaultAlarmTime)){
+            showToast(context, "Given alarm time has passed. Please input a later alarm time.");
+            return;
+        }
+        if(timeHasElapsed(targetArrivalTime)){
+            showToast(context, "Given arrival time has passed. Please input a later arrival time.");
+            return;
+        }
+        if(defaultAlarmTime.getTime() > targetArrivalTime.getTime()){
+            showToast(context, "Target arrival time must be later than alarm time. Please input an alarm time earlier than your target arrival time.");
+            return;
+        }
+
         newAlarm.setDefaultAlarm(defaultAlarmTime.getTime());
         newAlarm.setEta(targetArrivalTime.getTime());
 
         if (newAlarm.getId() != null) {
             handler.updateAlarm(newAlarm);
+            alarm = newAlarm;
         } else {
+            alarm = newAlarm;
             alarm.setId(handler.addAlarm(newAlarm));
         }
     }
