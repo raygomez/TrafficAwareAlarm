@@ -24,14 +24,16 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Intent i = new Intent(context, DialogActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("name", intent.getStringExtra("name"));
         context.startActivity(i);
     }
 
-    public void setOnetimeTimer(Context context, long timeOfExpiration) {
+    public void setOnetimeTimer(Context context, long timeOfExpiration, String name) {
         cancel(context);
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
+        intent.putExtra("name", name);
         pi = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);

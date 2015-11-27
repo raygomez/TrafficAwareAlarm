@@ -457,7 +457,6 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Alarm newAlarm = new Alarm();
 
         newAlarm.setId(alarm.getId());
-        newAlarm.setName(alarmNameView.getText().toString());
 
         if(alarm.getOriginCoordinates() == null){
             showToast("Please enter an origin.");
@@ -472,6 +471,12 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         }
         newAlarm.setDestination(destinationView.getText().toString());
         newAlarm.setDestCoordinates(alarm.getDestCoordinates());
+
+        String alarmName = alarmNameView.getText().toString();
+        if(alarmName.length() < 1){
+            alarmName = "Going to "+destinationView.getText().toString();
+        }
+        newAlarm.setName(alarmName);
 
         String input = prep.getText().toString();
         int hours = getHoursFromInput(input);

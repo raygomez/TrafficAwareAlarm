@@ -39,6 +39,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         intent.putExtra("targetAlarmDate", alarm.getEta());
         intent.putExtra("defaultDate", alarm.getDefaultAlarm());
         intent.putExtra("prepTime", alarm.getPrepTime());
+        intent.putExtra("name", alarm.getName());
 
         int alarmId = alarm.getId().intValue();
 
@@ -62,6 +63,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Long targetAlarmDate = intent.getLongExtra("targetAlarmDate", 0L);
         Long defaultDate = intent.getLongExtra("defaultDate", 0L);
         int prepTime = intent.getIntExtra("prepTime", 0);
+        String name = intent.getStringExtra("name");
 
         int tripDuration = 0;
         try {
@@ -76,15 +78,15 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, String.format("onReceive: http://silex-archnat.rhcloud.com/rest/api/v1/compute_travel_time?to=%s,%s&from=%s,%s", destinationLatitude, destinationLongitude, originLatitude, originLongitude));
         Log.i(TAG, "" + defaultDate);
         long newComputedTime = computeEstimatedWakeUpTime(tripDuration, targetAlarmDate - prepTime, defaultDate, context);
-        updateAlarmTime(context, alarmId, newComputedTime, defaultDate);
+        updateAlarmTime(context, alarmId, newComputedTime, defaultDate, name);
     }
 
-    private void updateAlarmTime(Context context, int alarmId, long newComputedTime, long defaultAlarmTime){
+    private void updateAlarmTime(Context context, int alarmId, long newComputedTime, long defaultAlarmTime, String name){
 
         //if newComputedTime is less than the polling interval before default alarm time
         //  setOneTimeTimer to the default alarmtime
         if(newComputedTime < ( defaultAlarmTime - POLLING_INTERVAL )){
-            setOneTimeTimer(context, newComputedTime);
+            setOneTimeTimer(context, newComputedTime, name);
             cancel(context, alarmId);
             return;
         }
@@ -92,16 +94,16 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         //if newComputedTime is less than the polling interval
         // setOneTimeTimer to the newComputedTime
         if(defaultAlarmTime < (System.currentTimeMillis() + POLLING_INTERVAL)){
-            setOneTimeTimer(context, defaultAlarmTime);
+            setOneTimeTimer(context, defaultAlarmTime, name);
             cancel(context, alarmId);
         }
     }
 
 
-    private void setOneTimeTimer(Context context, long expiration) {
+    private void setOneTimeTimer(Context context, long expiration, String name) {
         AlarmManagerBroadcastReceiver oneTimeAlarm = new AlarmManagerBroadcastReceiver();
-        oneTimeAlarm.setOnetimeTimer(context, expiration);
-        Log.i(TAG, "setOneTimeTimer expiration:" + new Date(expiration));
+        oneTimeAlarm.setOnetimeTimer(context, expiration, name);
+        Log.i(TAG, "setOneTimeTimer "+name+" expiration:" + new Date(expiration));
     }
 
     private long computeEstimatedWakeUpTime(int duration, long targetDate, long defaultDate, Context context) {

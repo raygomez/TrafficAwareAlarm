@@ -39,8 +39,8 @@ public class DialogActivity extends SampleActivityBase {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("WakeMeApp");
-        builder.setMessage("Time to wake up!").setCancelable(
-                false).setPositiveButton("Cancel Alarm",
+        builder.setMessage(getIntent().getStringExtra("name")).setCancelable(
+                false).setPositiveButton("Cancel",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         r.stop();
