@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Traffic Aware Alarm</string>
+    <string name="app_name">Buttercup</string>
     <string name="autocomplete_hint">Enter place name or address</string>
     <string name="selected_place">Last Selected Place:</string>
 
