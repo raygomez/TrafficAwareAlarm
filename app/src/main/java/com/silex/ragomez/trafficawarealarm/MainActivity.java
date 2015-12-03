@@ -343,14 +343,11 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        boolean isSuccesfulSave = saveAlarm(view);
-        if(!isSuccesfulSave){
+        boolean isSuccessfulSave = saveAlarm(view);
+        if(!isSuccessfulSave){
             return;
         }
         alarmBroadcastReceiver.createRepeatingAlarmTimer(context, alarm);
-
-        Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
-        deleteButton.setVisibility(View.VISIBLE);
 
         Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
         finish();
