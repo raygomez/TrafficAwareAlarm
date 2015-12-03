@@ -343,7 +343,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void repeatingTimer(View view) {
         Context context = getApplicationContext();
 
-        saveAlarm(view);
+        boolean isSuccesfulSave = saveAlarm(view);
+        if(!isSuccesfulSave){
+            return;
+        }
         alarmBroadcastReceiver.createRepeatingAlarmTimer(context, alarm);
 
         Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
@@ -458,9 +461,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         }
     }
 
-    public void saveAlarm(View view) {
-
-
+    public boolean saveAlarm(View view) {
         DatabaseHandler handler = DatabaseHandler.getInstance(this);
 
         Alarm newAlarm = new Alarm();
@@ -469,14 +470,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         if(alarm.getOriginCoordinates() == null){
             showToast("Please enter an origin.");
-            return;
+            return false;
         }
         newAlarm.setOrigin(originView.getText().toString());
         newAlarm.setOriginCoordinates(alarm.getOriginCoordinates());
 
         if(alarm.getDestCoordinates() == null){
             showToast("Please enter a destination.");
-            return;
+            return false;
         }
         newAlarm.setDestination(destinationView.getText().toString());
         newAlarm.setDestCoordinates(alarm.getDestCoordinates());
@@ -501,7 +502,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         }
         catch (ParseException e){
             showToast(context, "Please enter an alarm time.");
-            return;
+            return false;
         }
 
         try{
@@ -509,20 +510,20 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         }
         catch(ParseException e){
             showToast(context, "Please enter a target arrival time.");
-            return;
+            return false;
         }
 
         if(timeHasElapsed(defaultAlarmTime)){
             showToast(context, "Given alarm time has passed. Please input a later alarm time.");
-            return;
+            return false;
         }
         if(timeHasElapsed(targetArrivalTime)){
             showToast(context, "Given arrival time has passed. Please input a later arrival time.");
-            return;
+            return false;
         }
         if(defaultAlarmTime.getTime() > targetArrivalTime.getTime()){
             showToast(context, "Target arrival time must be later than alarm time. Please input an alarm time earlier than your target arrival time.");
-            return;
+            return false;
         }
 
         newAlarm.setDefaultAlarm(defaultAlarmTime.getTime());
@@ -535,6 +536,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             alarm = newAlarm;
             alarm.setId(handler.addAlarm(newAlarm));
         }
+
+        return true;
     }
 
     public void deleteAlarm(View view) {
