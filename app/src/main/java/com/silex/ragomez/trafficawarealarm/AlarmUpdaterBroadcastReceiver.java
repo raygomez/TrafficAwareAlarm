@@ -86,7 +86,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         //if newComputedTime is less than the polling interval before default alarm time
         //  setOneTimeTimer to the default alarmtime
         if(newComputedTime < ( defaultAlarmTime - POLLING_INTERVAL )){
-            setOneTimeTimer(context, newComputedTime, name);
+            setOneTimeTimer(context, newComputedTime, alarmId, name);
             cancel(context, alarmId);
             return;
         }
@@ -94,15 +94,15 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         //if newComputedTime is less than the polling interval
         // setOneTimeTimer to the newComputedTime
         if(defaultAlarmTime < (System.currentTimeMillis() + POLLING_INTERVAL)){
-            setOneTimeTimer(context, defaultAlarmTime, name);
+            setOneTimeTimer(context, defaultAlarmTime, alarmId, name);
             cancel(context, alarmId);
         }
     }
 
 
-    private void setOneTimeTimer(Context context, long expiration, String name) {
+    private void setOneTimeTimer(Context context, long expiration, int alarmId, String name) {
         AlarmManagerBroadcastReceiver oneTimeAlarm = new AlarmManagerBroadcastReceiver();
-        oneTimeAlarm.setOnetimeTimer(context, expiration, name);
+        oneTimeAlarm.setOnetimeTimer(context, expiration, alarmId, name);
         Log.i(TAG, "setOneTimeTimer "+name+" expiration:" + new Date(expiration));
     }
 

@@ -28,13 +28,13 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         context.startActivity(i);
     }
 
-    public void setOnetimeTimer(Context context, long timeOfExpiration, String name) {
+    public void setOnetimeTimer(Context context, long timeOfExpiration, int alarmId, String name) {
         cancel(context);
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
         intent.putExtra("name", name);
-        pi = PendingIntent.getBroadcast(context, 0, intent, 0);
+        pi = PendingIntent.getBroadcast(context, alarmId, intent, 0);
 
         am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);
         Log.i(TAG, "timer started:" + new Date().toString()+" timeOfExpiration: "+new Date(timeOfExpiration).toString());
