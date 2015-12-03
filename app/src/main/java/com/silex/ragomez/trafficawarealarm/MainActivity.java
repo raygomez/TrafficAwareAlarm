@@ -305,7 +305,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         // TODO(Developer): Check error code and notify the user of error state and resolution.
         Toast.makeText(this,
                 "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
-                Toast.LENGTH_LONG).show();
+                Toast.LENGTH_SHORT).show();
     }
 
     public void openDatePickerDialog(View view) {
@@ -349,14 +349,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         }
         alarmBroadcastReceiver.createRepeatingAlarmTimer(context, alarm);
 
-        Toast.makeText(context, "Alarm Created!", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Alarm Created!", Toast.LENGTH_SHORT).show();
         finish();
     }
     private void showToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
     private void showToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     private boolean timeHasElapsed(Date defaultAlarmTime) {
@@ -382,7 +382,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void stopTimer(View view) {
         Context context = getApplicationContext();
         alarmBroadcastReceiver.cancel(context, alarm.getId().intValue());
-        Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_SHORT).show();
 
         hideCancelAlarmButton();
     }
