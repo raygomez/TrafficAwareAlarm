@@ -124,8 +124,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
             deleteButton.setVisibility(View.GONE);
 
-            Button cancelButton = (Button) findViewById(R.id.button_cancel_alarm);
-            cancelButton.setVisibility(View.GONE);
+            hideCancelAlarmButton();
         }
     }
 
@@ -384,6 +383,13 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Context context = getApplicationContext();
         alarmBroadcastReceiver.cancel(context, alarm.getId().intValue());
         Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_LONG).show();
+
+        hideCancelAlarmButton();
+    }
+
+    private void hideCancelAlarmButton(){
+        Button cancelButton = (Button) findViewById(R.id.button_cancel_alarm);
+        cancelButton.setVisibility(View.GONE);
     }
 
     public void openNumberPickerDialog(View view) {
