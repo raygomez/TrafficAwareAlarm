@@ -305,7 +305,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         // TODO(Developer): Check error code and notify the user of error state and resolution.
         Toast.makeText(this,
                 "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_LONG).show();
     }
 
     public void openDatePickerDialog(View view) {
