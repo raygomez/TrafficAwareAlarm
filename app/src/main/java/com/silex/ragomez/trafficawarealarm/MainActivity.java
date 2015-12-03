@@ -123,6 +123,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             alarm = new Alarm();
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
             deleteButton.setVisibility(View.GONE);
+
+            Button cancelButton = (Button) findViewById(R.id.button_cancel_alarm);
+            cancelButton.setVisibility(View.GONE);
         }
     }
 
