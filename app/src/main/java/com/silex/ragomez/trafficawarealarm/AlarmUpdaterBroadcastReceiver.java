@@ -87,7 +87,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         //  setOneTimeTimer to the default alarmtime
         if(newComputedTime < ( defaultAlarmTime - POLLING_INTERVAL )){
             setOneTimeTimer(context, newComputedTime, alarmId, name);
-            cancel(context, alarmId);
+            cancelRepeatingPolling(context, alarmId);
             return;
         }
 
@@ -95,7 +95,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         // setOneTimeTimer to the newComputedTime
         if(defaultAlarmTime < (System.currentTimeMillis() + POLLING_INTERVAL)){
             setOneTimeTimer(context, defaultAlarmTime, alarmId, name);
-            cancel(context, alarmId);
+            cancelRepeatingPolling(context, alarmId);
         }
     }
 
@@ -122,13 +122,27 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         return newComputedAlarm;
     }
 
-    public void cancel(Context context, int alarmId) {
+    public void cancelRepeatingPolling(Context context, int alarmId) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmUpdaterBroadcastReceiver.class);
         PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         am.cancel(sender);
 
-        Log.i(TAG, "timer cancelled");
+        Log.i(TAG, "cancelRepeatingPolling alarmId:"+alarmId);
+    }
+
+    public void cancelAlarm(Context context, int alarmId){
+        cancelRepeatingPolling(context, alarmId);
+        cancelOneTimeAlarm(context, alarmId);
+    }
+
+    private void cancelOneTimeAlarm(Context context, int alarmId){
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(context, alarmId, intent, 0);
+        am.cancel(pi);
+
+        Log.i(TAG, "cancelOneTimeAlarm alarmId:"+alarmId);
     }
 
     private class PollServerTask extends AsyncTask<Double, Integer, Integer>{

@@ -381,7 +381,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
     public void stopTimer(View view) {
         Context context = getApplicationContext();
-        alarmBroadcastReceiver.cancel(context, alarm.getId().intValue());
+        alarmBroadcastReceiver.cancelAlarm(context, alarm.getId().intValue());
         Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_SHORT).show();
 
         hideCancelAlarmButton();
@@ -541,6 +541,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         DatabaseHandler db = DatabaseHandler.getInstance(this);
         db.deleteAlarmById(alarm.getId());
+        alarmBroadcastReceiver.cancelAlarm(getApplicationContext(), alarm.getId().intValue());
+
         showToast(getApplicationContext(), "Alarm deleted");
         finish();
     }
