@@ -21,6 +21,8 @@ public class Alarm {
 
     private long eta;
 
+    private int status;
+
     public Alarm(){}
 
     public Alarm(Bundle b) {
@@ -35,6 +37,7 @@ public class Alarm {
         prepTime = b.getInt(DatabaseHandler.KEY_PREP_TIME);
         defaultAlarm = b.getLong(DatabaseHandler.KEY_DEFAULT_ALARM);
         eta = b.getLong(DatabaseHandler.KEY_ETA);
+        status = 1;
 
     }
 
@@ -92,6 +95,26 @@ public class Alarm {
 
     public void setEta(long eta) {
         this.eta = eta;
+    }
+
+    public int isOn() {
+        return status;
+    }
+
+    public void turnOff(){
+        this.status = 0;
+    }
+
+    public void getStatus(){
+        this.status = 1;
+    }
+
+    public void toggleStatus() {
+        if (this.status == 0){
+            this.status = 1;
+            return;
+        }
+        this.status = 0;
     }
 
     @Override

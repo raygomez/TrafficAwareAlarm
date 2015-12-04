@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -13,6 +15,7 @@ import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
 public class ListActivity extends AppCompatActivity {
 
+    private static final String TAG = ListActivity.class.getSimpleName();
     ListView listView;
 
     @Override
@@ -28,9 +31,7 @@ public class ListActivity extends AppCompatActivity {
 
         Cursor cursor = DatabaseHandler.getInstance(this).fetchAllAlarms();
 
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.listview_each_alarm, cursor,
-                new String[]{ DatabaseHandler.KEY_NAME },
-                new int[]{ R.id.alarm_item }, 0);
+        CursorAdapter dataAdapter = new CustomCursorAdapter(getApplicationContext(), cursor);
 
         listView = (ListView) findViewById(R.id.alarm_list_view);
         listView.setAdapter(dataAdapter);
@@ -54,6 +55,7 @@ public class ListActivity extends AppCompatActivity {
                 intent.putExtra(DatabaseHandler.KEY_PREP_TIME, cursor.getInt(cursor.getColumnIndex(DatabaseHandler.KEY_PREP_TIME)));
                 intent.putExtra(DatabaseHandler.KEY_DEFAULT_ALARM, cursor.getLong(cursor.getColumnIndex(DatabaseHandler.KEY_DEFAULT_ALARM)));
                 intent.putExtra(DatabaseHandler.KEY_ETA, cursor.getLong(cursor.getColumnIndex(DatabaseHandler.KEY_ETA)));
+                intent.putExtra(DatabaseHandler.KEY_STATUS, cursor.getInt(cursor.getColumnIndex(DatabaseHandler.KEY_STATUS)));
 
                 startActivity(intent);
             }
@@ -71,10 +73,7 @@ public class ListActivity extends AppCompatActivity {
 
         Cursor cursor = DatabaseHandler.getInstance(this).fetchAllAlarms();
 
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.listview_each_alarm, cursor,
-                new String[]{ DatabaseHandler.KEY_NAME },
-                new int[]{ R.id.alarm_item }, 0);
-
+        CursorAdapter dataAdapter = new CustomCursorAdapter(getApplicationContext(), cursor);
         listView.setAdapter(dataAdapter);
     }
 }

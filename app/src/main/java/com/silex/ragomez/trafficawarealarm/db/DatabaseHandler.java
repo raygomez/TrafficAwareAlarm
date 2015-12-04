@@ -11,7 +11,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static DatabaseHandler instance;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "alarmManager.db";
     private static final String TABLE_ALARMS = "alarms";
 
@@ -30,6 +30,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String KEY_DEFAULT_ALARM = "default_alarm";
 
     public static final String KEY_ETA = "eta";
+
+    public static final String KEY_STATUS = "status";
 
     public static synchronized DatabaseHandler getInstance(Context context) {
         if(instance == null) {
@@ -57,7 +59,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_DEST_LONG + " real not null," +
                 KEY_PREP_TIME + " integer not null," +
                 KEY_DEFAULT_ALARM + " integer not null," +
-                KEY_ETA + " integer not null" +
+                KEY_ETA + " integer not null," +
+                KEY_STATUS + " integer not null" +
                 ")";
 
         db.execSQL(CREATE_ALARM_TABLE);
@@ -90,6 +93,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PREP_TIME, alarm.getPrepTime());
         values.put(KEY_DEFAULT_ALARM, alarm.getDefaultAlarm());
         values.put(KEY_ETA, alarm.getEta());
+        values.put(KEY_STATUS, alarm.isOn());
         return values;
     }
 

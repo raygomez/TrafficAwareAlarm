@@ -123,9 +123,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
             alarm = new Alarm();
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
             deleteButton.setVisibility(View.GONE);
-
-            hideCancelAlarmButton();
         }
+
+        hideButton(R.id.button_cancel_alarm);
     }
 
     private void setETA(long eta) {
@@ -382,13 +382,18 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     public void stopTimer(View view) {
         Context context = getApplicationContext();
         alarmBroadcastReceiver.cancelAlarm(context, alarm.getId().intValue());
+
+        alarm.turnOff();
+        DatabaseHandler db = DatabaseHandler.getInstance(this);
+        db.updateAlarm(alarm);
+
         Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_SHORT).show();
 
-        hideCancelAlarmButton();
+        hideButton(R.id.button_cancel_alarm);
     }
 
-    private void hideCancelAlarmButton(){
-        Button cancelButton = (Button) findViewById(R.id.button_cancel_alarm);
+    private void hideButton(int button_id){
+        Button cancelButton = (Button) findViewById(button_id);
         cancelButton.setVisibility(View.GONE);
     }
 
@@ -525,6 +530,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         newAlarm.setDefaultAlarm(defaultAlarmTime.getTime());
         newAlarm.setEta(targetArrivalTime.getTime());
+        newAlarm.getStatus();
 
         if (newAlarm.getId() != null) {
             handler.updateAlarm(newAlarm);
