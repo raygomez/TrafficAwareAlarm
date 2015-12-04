@@ -97,7 +97,7 @@ public class Alarm {
         this.eta = eta;
     }
 
-    public int isOn() {
+    public int getStatus() {
         return status;
     }
 
@@ -105,16 +105,12 @@ public class Alarm {
         this.status = 0;
     }
 
-    public void getStatus(){
+    public void turnOn(){
         this.status = 1;
     }
 
-    public void toggleStatus() {
-        if (this.status == 0){
-            this.status = 1;
-            return;
-        }
-        this.status = 0;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override

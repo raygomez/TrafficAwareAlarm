@@ -25,6 +25,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         Intent i = new Intent(context, DialogActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra("name", intent.getStringExtra("name"));
+        i.putExtra("id", intent.getIntExtra("id", 0));
         context.startActivity(i);
     }
 
@@ -34,6 +35,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
         intent.putExtra("name", name);
+        intent.putExtra("id", alarmId);
         pi = PendingIntent.getBroadcast(context, alarmId, intent, 0);
 
         am.set(AlarmManager.RTC_WAKEUP, timeOfExpiration, pi);

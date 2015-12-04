@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 
 import com.example.android.common.logger.Log;
 import com.silex.ragomez.trafficawarealarm.db.Alarm;
+import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
 import org.json.JSONObject;
 
@@ -131,9 +132,14 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "cancelRepeatingPolling alarmId:"+alarmId);
     }
 
-    public void cancelAlarm(Context context, int alarmId){
-        cancelRepeatingPolling(context, alarmId);
-        cancelOneTimeAlarm(context, alarmId);
+    public void cancelAlarm(Context context, Alarm alarm){
+        cancelRepeatingPolling(context, alarm.getId().intValue());
+        cancelOneTimeAlarm(context, alarm.getId().intValue());
+
+        alarm.turnOff();
+        DatabaseHandler db = DatabaseHandler.getInstance(context);
+        db.updateAlarm(alarm);
+
     }
 
     private void cancelOneTimeAlarm(Context context, int alarmId){

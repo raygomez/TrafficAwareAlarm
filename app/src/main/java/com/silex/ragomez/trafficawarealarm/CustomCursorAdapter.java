@@ -3,7 +3,6 @@ package com.silex.ragomez.trafficawarealarm;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.silex.ragomez.trafficawarealarm.db.Alarm;
 import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
 /**
@@ -21,6 +21,7 @@ public class CustomCursorAdapter extends CursorAdapter{
 
     private static final String TAG = CustomCursorAdapter.class.getSimpleName();
     private static final String BLACK = "#000000";
+    private final AlarmUpdaterBroadcastReceiver alarmBroadcastReceiver = new AlarmUpdaterBroadcastReceiver();
 
     public CustomCursorAdapter(Context context, Cursor c){
         super(context, c);
@@ -41,16 +42,26 @@ public class CustomCursorAdapter extends CursorAdapter{
         alarmText.setTextColor(Color.parseColor(BLACK));
         alarmText.setText(body);
 
-        int toggleStatus = cursor.getInt(cursor.getColumnIndexOrThrow("status"));
+        int toggleStatus = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHandler.KEY_STATUS));
         toggleButton.setChecked(toggleStatus == 1);
-        toggleButton.setOnClickListener(new ToggleButtonListener(toggleButton, context));
+
+        Alarm alarm = getAlarmFromCursor(cursor, context);
+        toggleButton.setOnClickListener(new ToggleButtonListener(alarm, toggleButton, context));
+    }
+
+    private Alarm getAlarmFromCursor(Cursor cursor, Context context) {
+        DatabaseHandler db = DatabaseHandler.getInstance(context);
+        return db.getAlarm(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHandler.KEY_ID)));
     }
 
     class ToggleButtonListener implements View.OnClickListener{
+
+        private Alarm alarm;
         private ToggleButton toggleButton;
         private Context context;
 
-        ToggleButtonListener(ToggleButton toggleButton, Context context){
+        ToggleButtonListener(Alarm alarm, ToggleButton toggleButton, Context context){
+            this.alarm = alarm;
             this.toggleButton = toggleButton;
             this.context = context;
         }
@@ -58,10 +69,18 @@ public class CustomCursorAdapter extends CursorAdapter{
         @Override
         public void onClick(View v) {
             if (toggleButton.isChecked()) {
+                alarm.turnOn();
+                DatabaseHandler db = DatabaseHandler.getInstance(context);
+                db.updateAlarm(alarm);
+                alarmBroadcastReceiver.createRepeatingAlarmTimer(context, alarm);
+
                 Toast.makeText(context, "alarm has been turned on!",
                         Toast.LENGTH_SHORT).show();
-
             } else {
+                alarm.turnOff();
+                DatabaseHandler db = DatabaseHandler.getInstance(context);
+                db.updateAlarm(alarm);
+                alarmBroadcastReceiver.cancelAlarm(context, alarm);
                 Toast.makeText(context, "alarm has been turned off!",
                         Toast.LENGTH_SHORT).show();
             }

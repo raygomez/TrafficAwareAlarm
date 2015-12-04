@@ -16,6 +16,8 @@ import android.os.Vibrator;
 
 import com.example.android.common.activities.SampleActivityBase;
 import com.example.android.common.logger.Log;
+import com.silex.ragomez.trafficawarealarm.db.Alarm;
+import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
 public class DialogActivity extends SampleActivityBase {
 
@@ -41,16 +43,9 @@ public class DialogActivity extends SampleActivityBase {
         builder.setTitle("Buttercup");
         builder.setMessage(getIntent().getStringExtra("name")).setCancelable(
                 false).setPositiveButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        r.stop();
-                        v.cancel();
-                        keyguardLock.reenableKeyguard();
-                        finish();
-                    }
-                });
+                new DialogCancelClickListener(r, v, context, getIntent().getIntExtra("id", 0)));
 
-        cancelAlarmUpdater();
+                cancelAlarmUpdater();
         AlertDialog alert = builder.create();
         alert.show();
 
@@ -75,5 +70,33 @@ public class DialogActivity extends SampleActivityBase {
         am.cancel(alarmUpdaterPendingIntent);
         Log.i(TAG, "cancelled alarmUpdaterPendingIntent");
 
+    }
+
+    class DialogCancelClickListener implements DialogInterface.OnClickListener {
+        private Ringtone r;
+        private Vibrator v;
+        private Context context;
+        private int alarmId;
+
+        DialogCancelClickListener(Ringtone r, Vibrator v, Context context, int id){
+            this.r = r;
+            this.v = v;
+            this.context = context;
+            this.alarmId = id;
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            r.stop();
+            v.cancel();
+            keyguardLock.reenableKeyguard();
+
+            DatabaseHandler db = DatabaseHandler.getInstance(context);
+            Alarm alarm = db.getAlarm(alarmId);
+            alarm.turnOff();
+            db.updateAlarm(alarm);
+
+            finish();
+        }
     }
 }

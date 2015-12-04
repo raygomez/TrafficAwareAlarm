@@ -6,9 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
+    private static final String TAG = DatabaseHandler.class.getSimpleName();
     private static DatabaseHandler instance;
 
     private static final int DATABASE_VERSION = 2;
@@ -93,7 +97,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PREP_TIME, alarm.getPrepTime());
         values.put(KEY_DEFAULT_ALARM, alarm.getDefaultAlarm());
         values.put(KEY_ETA, alarm.getEta());
-        values.put(KEY_STATUS, alarm.isOn());
+        values.put(KEY_STATUS, alarm.getStatus());
         return values;
     }
 
@@ -122,5 +126,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = getContentValues(alarm);
         db.update(TABLE_ALARMS, values, KEY_ID + " = ?", new String[]{String.valueOf(alarm.getId())});
+    }
+
+    public Alarm getAlarm(long alarmId){
+        Alarm alarm = null;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_ALARMS + " WHERE "
+                + KEY_ID + " = " + alarmId;
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null) {
+            c.moveToFirst();
+            alarm = new Alarm();
+            alarm.setId(c.getLong(c.getColumnIndex(KEY_ID)));
+            alarm.setName(c.getString(c.getColumnIndex(KEY_NAME)));
+            alarm.setOrigin(c.getString(c.getColumnIndex(KEY_ORIGIN)));
+            alarm.setOriginCoordinates(new LatLng(c.getDouble(c.getColumnIndex(KEY_ORIGIN_LAT)), c.getDouble(c.getColumnIndex(KEY_ORIGIN_LONG))));
+            alarm.setDestination(c.getString(c.getColumnIndex(KEY_DEST)));
+            alarm.setDestCoordinates(new LatLng(c.getDouble(c.getColumnIndex(KEY_DEST_LAT)), c.getDouble(c.getColumnIndex(KEY_DEST_LONG))));
+            alarm.setPrepTime(c.getInt(c.getColumnIndex(KEY_PREP_TIME)));
+            alarm.setEta(c.getLong(c.getColumnIndex(KEY_ETA)));
+            alarm.setDefaultAlarm(c.getLong(c.getColumnIndex(KEY_DEFAULT_ALARM)));
+            alarm.setStatus(c.getInt(c.getColumnIndex(KEY_STATUS)));
+        }
+        return alarm;
     }
 }
