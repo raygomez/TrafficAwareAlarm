@@ -14,6 +14,11 @@ import android.widget.ToggleButton;
 import com.silex.ragomez.trafficawarealarm.db.Alarm;
 import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by bgamboa on 12/4/2015.
  */
@@ -21,6 +26,7 @@ public class CustomCursorAdapter extends CursorAdapter{
 
     private static final String TAG = CustomCursorAdapter.class.getSimpleName();
     private static final String BLACK = "#000000";
+    private static final DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
     private final AlarmUpdaterBroadcastReceiver alarmBroadcastReceiver = new AlarmUpdaterBroadcastReceiver();
 
     public CustomCursorAdapter(Context context, Cursor c){
@@ -34,10 +40,15 @@ public class CustomCursorAdapter extends CursorAdapter{
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        TextView alarmTime = (TextView) view.findViewById(R.id.alarm_item_time);
         TextView alarmText = (TextView) view.findViewById(R.id.alarm_item_text);
         final ToggleButton toggleButton = (ToggleButton) view.findViewById(R.id.alarm_item_toggle_button);
 
         // Extract properties from cursor
+        long time = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHandler.KEY_DEFAULT_ALARM));
+        alarmTime.setTextColor(Color.parseColor(BLACK));
+        alarmTime.setText(dateFormat.format(new Date(time)));
+
         String body = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHandler.KEY_NAME));
         alarmText.setTextColor(Color.parseColor(BLACK));
         alarmText.setText(body);
