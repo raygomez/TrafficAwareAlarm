@@ -3,12 +3,14 @@ package com.silex.ragomez.trafficawarealarm;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
@@ -85,16 +87,18 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         originView = (AutoCompleteTextView) findViewById(R.id.origin);
         destinationView = (AutoCompleteTextView) findViewById(R.id.destination);
 
-        // Register a listener that receives callbacks when a suggestion has been selected
-        originView.setOnItemClickListener(originViewClickListener);
-        destinationView.setOnItemClickListener(destinationViewClickListener);
-
         // Set up the adapter that will retrieve suggestions from the Places Geo Data API that cover
         // the entire world.
         mAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_METRO_MANILA,
                 null);
         originView.setAdapter(mAdapter);
         destinationView.setAdapter(mAdapter);
+
+        alarmBroadcastReceiver = new AlarmUpdaterBroadcastReceiver();
+
+        // Register a listener that receives callbacks when a suggestion has been selected
+        originView.setOnItemClickListener(originViewClickListener);
+        destinationView.setOnItemClickListener(destinationViewClickListener);
 
         alarmNameView = (EditText) findViewById(R.id.alarm_name);
         default_date = (EditText) findViewById(R.id.default_date);
@@ -103,29 +107,40 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         target_time = (EditText) findViewById(R.id.target_time);
         prep = (EditText) findViewById(R.id.prep_time);
 
-        alarmBroadcastReceiver = new AlarmUpdaterBroadcastReceiver();
-
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
-        if(b != null) {
-            if(b.containsKey(DatabaseHandler.KEY_ID)) {
-                alarm = new Alarm(b);
 
-                alarmNameView.setText(alarm.getName());
-                originView.setText(alarm.getOrigin());
-                destinationView.setText(alarm.getDestination());
-
-                setPrepTime();
-                setDefaultAlarm(alarm.getDefaultAlarm());
-                setETA(alarm.getEta());
-            }
-        } else {
+        if(b != null && b.containsKey(DatabaseHandler.KEY_ID)) {
+            alarm = new Alarm(b);
+            loadAlarmValues(alarm);
+        }
+        else {
             alarm = new Alarm();
             Button deleteButton = (Button) findViewById(R.id.button_delete_alarm);
             deleteButton.setVisibility(View.GONE);
         }
-
         hideButton(R.id.button_cancel_alarm);
+    }
+
+    private void loadAlarmValues(Alarm alarm) {
+        alarmNameView.setText(alarm.getName());
+        originView.setText(alarm.getOrigin());
+        destinationView.setText(alarm.getDestination());
+
+        setPrepTime(alarm);
+        setDefaultAlarm(alarm.getDefaultAlarm());
+        setETA(alarm.getEta());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = getIntent();
+        Bundle b = intent.getExtras();
+
+        Alarm alarm = DatabaseHandler.getInstance(this).getAlarm(b.getLong(DatabaseHandler.KEY_ID));
+        loadAlarmValues(alarm);
     }
 
     private void setETA(long eta) {
@@ -170,7 +185,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         default_time.setText(String.format("%02d", hour) + " : " + String.format("%02d", minute) + " " + am_pm);
     }
 
-    private void setPrepTime() {
+    private void setPrepTime(Alarm alarm) {
         int prepInHours = alarm.getPrepTime() / 3600;
         int prepInQuarters = (alarm.getPrepTime() - prepInHours * 3600)/(60 * 15);
         String input = hours[prepInHours] + ", " + minutes[prepInQuarters];

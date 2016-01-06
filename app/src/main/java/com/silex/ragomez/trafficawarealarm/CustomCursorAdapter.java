@@ -77,9 +77,20 @@ public class CustomCursorAdapter extends CursorAdapter{
             this.context = context;
         }
 
+        private long incrementTimeByOneDay(long time){
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(time);
+            cal.add(Calendar.DATE, 1);
+            return cal.getTimeInMillis();
+        }
+
         @Override
         public void onClick(View v) {
             if (toggleButton.isChecked()) {
+                while (alarm.getDefaultAlarm() < System.currentTimeMillis()){
+                    alarm.setDefaultAlarm(incrementTimeByOneDay(alarm.getDefaultAlarm()));
+                    alarm.setEta(incrementTimeByOneDay(alarm.getEta()));
+                }
                 alarm.turnOn();
                 DatabaseHandler db = DatabaseHandler.getInstance(context);
                 db.updateAlarm(alarm);
