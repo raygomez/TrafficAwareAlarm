@@ -35,17 +35,17 @@
         android:layout_centerHorizontal="true">
 
         <Button
-            android:id="@+id/set_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="16dp"
-            android:text="Set" />
-
-        <Button
             android:id="@+id/cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Cancel" />
+            android:text="Cancel"
+            android:layout_marginRight="16dp" />
+
+        <Button
+            android:id="@+id/set_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set"
+            android:layout_marginLeft="20dp" />
     </LinearLayout>
 </RelativeLayout>
