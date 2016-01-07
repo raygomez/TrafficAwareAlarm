@@ -139,8 +139,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
 
-        Alarm alarm = DatabaseHandler.getInstance(this).getAlarm(b.getLong(DatabaseHandler.KEY_ID));
-        loadAlarmValues(alarm);
+        if(b != null && b.containsKey(DatabaseHandler.KEY_ID)) {
+            Alarm alarm = DatabaseHandler.getInstance(this).getAlarm(b.getLong(DatabaseHandler.KEY_ID));
+            loadAlarmValues(alarm);
+        }
     }
 
     private void setETA(long eta) {
