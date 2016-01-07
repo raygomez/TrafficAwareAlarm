@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -99,6 +102,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         // Register a listener that receives callbacks when a suggestion has been selected
         originView.setOnItemClickListener(originViewClickListener);
         destinationView.setOnItemClickListener(destinationViewClickListener);
+
+        originView.addTextChangedListener(originViewTextWatcher);
+        destinationView.addTextChangedListener(destinationViewTextWatcher);
 
         alarmNameView = (EditText) findViewById(R.id.alarm_name);
         default_date = (EditText) findViewById(R.id.default_date);
@@ -271,6 +277,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         public void onResult(PlaceBuffer places) {
             if (!places.getStatus().isSuccess()) {
                 // Request did not complete successfully
+                alarm.setOriginCoordinates(null);
                 Log.e(TAG, "Place query did not complete. Error: " + places.getStatus().toString());
                 places.release();
                 return;
@@ -292,6 +299,7 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         public void onResult(PlaceBuffer places) {
             if (!places.getStatus().isSuccess()) {
                 // Request did not complete successfully
+                alarm.setDestCoordinates(null);
                 Log.e(TAG, "Place query did not complete. Error: " + places.getStatus().toString());
                 places.release();
                 return;
@@ -484,14 +492,14 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
 
         newAlarm.setId(alarm.getId());
 
-        if(alarm.getOriginCoordinates() == null){
+        if(originView.getText().toString() == null || originView.getText().toString().length() < 1 || alarm.getOriginCoordinates() == null){
             showToast("Please enter an origin.");
             return false;
         }
         newAlarm.setOrigin(originView.getText().toString());
         newAlarm.setOriginCoordinates(alarm.getOriginCoordinates());
 
-        if(alarm.getDestCoordinates() == null){
+        if(destinationView.getText().toString() == null || destinationView.getText().toString().length() < 1 || alarm.getDestCoordinates() == null){
             showToast("Please enter a destination.");
             return false;
         }
@@ -566,4 +574,40 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         showToast(getApplicationContext(), "Alarm deleted");
         finish();
     }
+
+    TextWatcher originViewTextWatcher = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            alarm.setOriginCoordinates(null);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
+
+    TextWatcher destinationViewTextWatcher = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            alarm.setDestCoordinates(null);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
 }
