@@ -186,8 +186,9 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
     }
 
     private void setPrepTime(Alarm alarm) {
-        int prepInHours = alarm.getPrepTime() / 3600;
-        int prepInQuarters = (alarm.getPrepTime() - prepInHours * 3600)/(60 * 15);
+
+        int prepInHours = (alarm.getPrepTime() / 3600) / 1000;
+        int prepInQuarters = ( ( (alarm.getPrepTime()/1000) - (prepInHours * 3600) )/60) / 15;
         String input = hours[prepInHours] + ", " + minutes[prepInQuarters];
         prep.setText(input);
     }
@@ -318,9 +319,10 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
                 + connectionResult.getErrorCode());
 
         // TODO(Developer): Check error code and notify the user of error state and resolution.
-        Toast.makeText(this,
-                "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
-                Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,
+//                "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
+//                Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "Could not connect to Google API Client: Error " + connectionResult.getErrorCode());
     }
 
     public void openDatePickerDialog(View view) {
@@ -414,9 +416,8 @@ public class MainActivity extends SampleActivityBase implements GoogleApiClient.
         Button setButton = (Button) d.findViewById(R.id.set_button);
         Button cancelButton = (Button) d.findViewById(R.id.cancel_button);
 
-        int prepInHours = alarm.getPrepTime() / 3600;
-        int prepInQuarters = (alarm.getPrepTime() - prepInHours * 3600)/(60 * 15);
-
+        int prepInHours = (alarm.getPrepTime() / 3600) / 1000;
+        int prepInQuarters = ( ( (alarm.getPrepTime()/1000) - (prepInHours * 3600) )/60) / 15;
         final NumberPicker hourPicker = (NumberPicker) d.findViewById(R.id.prep_hours);
         hourPicker.setMaxValue(2);
         hourPicker.setMinValue(0);

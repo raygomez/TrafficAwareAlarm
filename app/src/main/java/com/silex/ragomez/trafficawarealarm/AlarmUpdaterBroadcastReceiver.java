@@ -46,7 +46,7 @@ public class AlarmUpdaterBroadcastReceiver extends BroadcastReceiver {
 
         PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        long startTime = alarm.getDefaultAlarm() - START_OF_POLLING_TIME;
+        long startTime = alarm.getDefaultAlarm() - alarm.getPrepTime() - START_OF_POLLING_TIME;
         am.setRepeating(AlarmManager.RTC_WAKEUP, startTime,
                 POLLING_INTERVAL, sender);
 
