@@ -1,7 +1,12 @@
 package com.silex.ragomez.trafficawarealarm;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.silex.ragomez.trafficawarealarm.db.DatabaseHandler;
 
@@ -25,6 +31,17 @@ public class ListActivity extends AppCompatActivity {
 
         displayListView();
 
+        IntentFilter filter = new IntentFilter(CONNECTIVITY_CHANGE_ACTION);
+        this.registerReceiver(changeWifiReceiver, filter);
+        adjustInternetConnectivityText(getApplicationContext());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(changeWifiReceiver != null) {
+            unregisterReceiver(changeWifiReceiver);
+        }
     }
 
     private void displayListView() {
@@ -75,5 +92,42 @@ public class ListActivity extends AppCompatActivity {
 
         CursorAdapter dataAdapter = new CustomCursorAdapter(getApplicationContext(), cursor);
         listView.setAdapter(dataAdapter);
+    }
+
+    final String CONNECTIVITY_CHANGE_ACTION = "android.net.conn.CONNECTIVITY_CHANGE";
+
+    private final BroadcastReceiver changeWifiReceiver = new BroadcastReceiver() {
+        public static final String CONNECTED = "Connected";
+        public static final String NOT_CONNECTED = "No Internet Connection";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (CONNECTIVITY_CHANGE_ACTION.equals(action))
+            {
+                adjustInternetConnectivityText(context);
+            }
+        }
+    };
+
+    private void adjustInternetConnectivityText(Context context) {
+        TextView internetConnectivityTextView = (TextView) findViewById(R.id.internetConnectivity);
+        com.example.android.common.logger.Log.i(TAG, "isConnected(context):" + isConnected(context));
+        if(isConnected(context) && internetConnectivityTextView.getVisibility() == View.VISIBLE)
+        {
+            internetConnectivityTextView.setVisibility(View.GONE);
+        }
+        else if(!isConnected(context) && internetConnectivityTextView.getVisibility() == View.GONE)
+        {
+            internetConnectivityTextView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public boolean isConnected(Context context) {
+        ConnectivityManager cm =(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+        return isConnected;
     }
 }

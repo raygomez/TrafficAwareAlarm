@@ -23,6 +23,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/internetConnectivity"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_small_material"
+            android:layout_centerInParent="true"
+            android:text="@string/no_internet_connection"
+            android:background="#ffae58"
+            android:textColor="#ffffff"
+            android:visibility="gone" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
